@@ -41,13 +41,13 @@
     <dependencies>
         
         <!-- Netbeans Platform dependencies -->
-        <dependency>
+<!--        <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-masterfs</artifactId>
             <version>${netbeans.version}</version>
         </dependency>
         <dependency>
-            <!-- Necessary because of bug https://netbeans.org/bugzilla/show_bug.cgi?id=84501 See http://wiki.netbeans.org/UsingFileSystemsMasterfs --> 
+             Necessary because of bug https://netbeans.org/bugzilla/show_bug.cgi?id=84501 See http://wiki.netbeans.org/UsingFileSystemsMasterfs  
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-core-startup-base</artifactId>
             <version>${netbeans.version}</version>
@@ -62,14 +62,14 @@
             <artifactId>org-openide-util-lookup</artifactId> 
             <version>${netbeans.version}</version>  
         </dependency>               
+        <dependency>
+             Needed to get PreferencesProviderImpl 
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-core-startup</artifactId>
+            <version>${netbeans.version}</version>   
+        </dependency>-->
         
-        
-        <!-- JJazzLab core module s -->
-        <dependency> 
-            <groupId>${project.groupId}</groupId> 
-            <artifactId>biab</artifactId> 
-            <version>${project.version}</version> 
-        </dependency>  
+        <!-- JJazzLab core module s -->  
         <dependency> 
             <groupId>${project.groupId}</groupId> 
             <artifactId>embeddedsynth</artifactId> 
