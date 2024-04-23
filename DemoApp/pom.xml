@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.jjazzlab</groupId>
+    <artifactId>ToolkitDemo</artifactId>
+    <version>4.0.3-SNAPSHOT</version>    
+    <packaging>jar</packaging>
+    <name>JJazzLabToolkitDemo</name>
+
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>         
+        <jjazzlab.compiler.release>17</jjazzlab.compiler.release>
+        <jjazzlab.maven.compiler.plugin.version>3.11.0</jjazzlab.maven.compiler.plugin.version>
+    </properties>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${jjazzlab.maven.compiler.plugin.version}</version>                
+                <configuration>
+                    <release>${jjazzlab.compiler.release}</release>                    
+                    <enablePreview>true</enablePreview>         <!-- needed for fluidsynthembeddedsynth -->
+                    <compilerArgs>
+                        <arg>--add-modules=jdk.incubator.foreign</arg>     <!-- needed for fluidsynthembeddedsynth -->
+                    </compilerArgs>
+                </configuration>       
+            </plugin>
+        </plugins>
+    </build>
+    
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.jjazzlab</groupId>
+            <artifactId>toolkit</artifactId>  
+            <version>4.0.3-SNAPSHOT</version>
+        </dependency>     
+        <dependency>
+            <groupId>org.jjazzlab.plugins</groupId>
+            <artifactId>yamjjazz</artifactId>       <!-- The JJazzLab Yamaha-file based engine -->
+            <version>4.0.3-SNAPSHOT</version>
+        </dependency>       
+        <dependency>
+            <groupId>org.jjazzlab.plugins</groupId>
+            <artifactId>fluidsynthembeddedsynth</artifactId>         <!-- Enable FluidSynth for JJazzLab  -->
+            <version>4.0.3-SNAPSHOT</version>
+        </dependency>           
+    </dependencies>
+</project>

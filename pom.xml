@@ -1,51 +1,153 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion> 
-        
-    <parent>
-        <groupId>org.jjazzlab</groupId>
-        <artifactId>jjazzlab-parent</artifactId>
-        <version>4.0.3-SNAPSHOT</version>
-        <relativePath>../JJazzLab/pom.xml</relativePath>
-    </parent>    
+    <groupId>org.jjazzlab</groupId>         
     <artifactId>toolkit</artifactId>
+    <version>4.0.3-SNAPSHOT</version>
     <name>JJazzLabToolkit</name>
     <packaging>jar</packaging>    
     
+   
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>         
+        <jjazzlab.compiler.release>17</jjazzlab.compiler.release>
+        <jjazzlab.maven.compiler.plugin.version>3.11.0</jjazzlab.maven.compiler.plugin.version>        
+        <netbeans.version>RELEASE210</netbeans.version>
+    </properties>
+    
+    
     <build>
-        <plugins>   
-            <!-- Assembler to produce final jar -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.0</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase  -->
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${jjazzlab.maven.compiler.plugin.version}</version>
+                    <configuration>
+                        <release>${jjazzlab.compiler.release}</release>
+                        <showDeprecation>${jjazzlab.javac.showDeprecation}</showDeprecation>
+                        <showWarnings>${jjazzlab.javac.showWarnings}</showWarnings>
+                        <useIncrementalCompilation>false</useIncrementalCompilation>    <!--  see https://stackoverflow.com/questions/76349126/building-parent-project-always-recompiles-all-modules -->
+                        <!-- fork must be true to pass -J arguments to the compiler -->                                                
+                        <fork>${jjazzlab.javac.fork}</fork>
+                        <compilerArgs>
+                            <arg>${jjazzlab.javac.xlint}</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>                                                                  
+                
+                
+                <!-- Assembler to produce final jar -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.7.0</version>
+                    <configuration>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                            <phase>package</phase> <!-- bind to the packaging phase  -->
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            
+            
+                <!-- Make sure we don't embedd JJazzLab application/plugin dependencies -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.4.1</version>
+                    <executions>
+                        <execution>
+                            <id>enforce-banned-dependencies</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <bannedDependencies>
+                                        <searchTransitive>true</searchTransitive>
+                                        <excludes>
+                                            <exclude>org.jjazzlab</exclude>
+                                            <exclude>org.jjazzlab.plugins</exclude>
+                                        </excludes>   
+                                        <message>Found JJazzLab application or plugins modules in dependencies</message> 
+                                    </bannedDependencies>
+                                </rules>
+                                <fail>true</fail>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>                
+                
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.6.3</version>
+                    <configuration>                            
+                        <excludePackageNames>org.jjazz.embeddedsynth.lame.*</excludePackageNames>
+                        <show>public</show>
+                        <nohelp>false</nohelp>
+                        <detectLinks>false</detectLinks>
+                        <detectOfflineLinks>true</detectOfflineLinks>   
+                        <quiet>false</quiet>
+                        <doclint>none</doclint>
+                        <release>${jjazzlab.compiler.release}</release>   
+                        <sourceFileIncludes>
+                            <include>org/jjazz/**/api/**/*.java</include>
+                            <include>org/jjazz/**/spi/**/*.java</include>
+                        </sourceFileIncludes>
+                    </configuration>                                                          
+                </plugin>                      
+                
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.3.0</version>                                
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>           
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.1.1</version>
+                </plugin>      
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>    
+            </plugins>
+        </pluginManagement>
     </build>
     
     
     <dependencies>
         
-        <!-- Netbeans Platform dependencies -->
+        <!-- Netbeans Platform direct dependencies -->
         <dependency> 
             <groupId>org.netbeans.api</groupId> 
-            <artifactId>org-openide-dialogs</artifactId> <!-- needed to provide a simplified DialogDisplayer version -->
+            <artifactId>org-openide-dialogs</artifactId> <!-- needed to provide a simplified DialogDisplayer instance -->
             <version>${netbeans.version}</version>  
         </dependency>  
+        <dependency> 
+            <groupId>org.netbeans.api</groupId> 
+            <artifactId>org-openide-awt</artifactId> <!-- needed to provide a simplified StatusDisplayer instance -->
+            <version>${netbeans.version}</version>  
+        </dependency>          
         
         
         <!-- JJazzLab core modules -->  
@@ -68,7 +170,12 @@
             <groupId>org.jjazzlab.core</groupId> 
             <artifactId>importers</artifactId> 
             <version>${project.version}</version> 
-        </dependency>       
+        </dependency>      
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>flatcomponents</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>            
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
             <artifactId>midi</artifactId> 
