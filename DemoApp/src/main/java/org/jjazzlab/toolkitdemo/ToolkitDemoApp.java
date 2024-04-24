@@ -24,6 +24,8 @@ import org.jjazz.midimix.spi.MidiMixManager;
 import org.jjazz.musiccontrol.api.MusicController;
 import org.jjazz.musiccontrol.api.SongMidiExporter;
 import org.jjazz.musiccontrol.api.playbacksession.StaticSongSession;
+import org.jjazz.outputsynth.api.OutputSynth;
+import org.jjazz.outputsynth.spi.OutputSynthManager;
 import org.jjazz.rhythm.api.MusicGenerationException;
 import org.jjazz.rhythm.api.rhythmparameters.RP_STD_Variation;
 import org.jjazz.rhythmdatabase.api.DefaultRhythmDatabase;
@@ -84,7 +86,7 @@ public class ToolkitDemoApp
                 jms.setDefaultOutDevice(jms.getJavaInternalSynth());
             } catch (MidiUnavailableException ex)
             {
-                Exceptions.printStackTrace(ex);
+                exitWithError(ex);
             }
         }
 
@@ -97,7 +99,7 @@ public class ToolkitDemoApp
             LOGGER.log(Level.INFO, "Did you hear the notes?");
         } catch (MusicGenerationException ex)
         {
-            Exceptions.printStackTrace(ex);
+            exitWithError(ex);
         }
 
 
@@ -112,8 +114,8 @@ public class ToolkitDemoApp
 
         // =============================================================================================
         Song song = null;
-        ChordLeadSheet cls = null;
-        SongStructure ss = null;
+        ChordLeadSheet chordLeadsheet = null;
+        SongStructure songStructure = null;
         if (PATH_TO_SNG_FILE != null)
         {
             LOGGER.info("-------------------------------------------------------");
@@ -121,86 +123,119 @@ public class ToolkitDemoApp
             try
             {
                 song = Song.loadFromFile(new File(PATH_TO_SNG_FILE));
-                cls = song.getChordLeadSheet();
-                ss = song.getSongStructure();
+                chordLeadsheet = song.getChordLeadSheet();
+                songStructure = song.getSongStructure();
             } catch (SongCreationException ex)
             {
-                Exceptions.printStackTrace(ex);
+                exitWithError(ex);
             }
         }
         if (song == null)
         {
             LOGGER.info("-------------------------------------------------------");
             LOGGER.info("Creating a new song...");
-            song = SongFactory.getInstance().createEmptySong("Simple blues in F", 12);    // 12 bars with just an initial 4/4 Section and its corresponding SongPart
-            cls = song.getChordLeadSheet();
-            ss = song.getSongStructure();
+            // 12 bars with just an initial "A" Section in 4/4 and its corresponding SongPart
+            song = SongFactory.getInstance().createEmptySong("Simple blues in F", 12, "A", TimeSignature.FOUR_FOUR, null);
+            chordLeadsheet = song.getChordLeadSheet();
+            songStructure = song.getSongStructure();
             CLI_Factory clif = CLI_Factory.getDefault();        // ChordLeadSheetItem factory
             try
             {
-                cls.addItem(clif.createChordSymbol("F7", 0, 0));            // 0-based bar, beat  
-                cls.addItem(clif.createChordSymbol("Bb7", 4, 0));
-                cls.addItem(clif.createChordSymbol("F7", 6, 0));
-                cls.addItem(clif.createChordSymbol("C7", 8, 0));
-                cls.addItem(clif.createChordSymbol("Bb7", 9, 0));
-                cls.addItem(clif.createChordSymbol("F7", 10, 0));
+                chordLeadsheet.addItem(clif.createChordSymbol("F7", 0, 0));            // 0-based bar, beat  
+                chordLeadsheet.addItem(clif.createChordSymbol("Bb7", 4, 0));
+                chordLeadsheet.addItem(clif.createChordSymbol("F7", 6, 0));
+                chordLeadsheet.addItem(clif.createChordSymbol("C7", 8, 0));
+                chordLeadsheet.addItem(clif.createChordSymbol("Bb7", 9, 0));
+                chordLeadsheet.addItem(clif.createChordSymbol("F7", 10, 0));
             } catch (ParseException ex)
             {
-                Exceptions.printStackTrace(ex);
+                exitWithError(ex);
             }
 
-            // Or simpler using the TextReader song importer
-            TextReader tr = new TextReader(
-                    """
-                    |4/4 F7|    |     |    |
-                    |Bb7   |    |F7   |    | 
-                    |C7    |Bb7 |F7   |    |""");
-            song = tr.readSong();           // might be null
+            // Or simpler using the TextReader song importer:
+//            TextReader tr = new TextReader(
+//                    """
+//                    |4/4 F7|    |     |    |
+//                    |Bb7   |    |F7   |    | 
+//                    |C7    |Bb7 |F7   |    |""");
+//            song = tr.readSong();           // might be null
+//            cls = song.getChordLeadSheet();
+//            ss = song.getSongStructure();
+
+            // Or simpler using the TextReader song importer:
+//            TextReader tr = new TextReader(
+//                    """
+//                    |4/4 F7|    |     |    |
+//                    |Bb7   |    |F7   |    | 
+//                    |C7    |Bb7 |F7   |    |""");
+//            song = tr.readSong();           // might be null
+//            cls = song.getChordLeadSheet();
+//            ss = song.getSongStructure();
         }
-        LOGGER.log(Level.INFO, "Song chord leadsheet= {0}", cls.toDebugString());        
-        LOGGER.log(Level.INFO, "Song structure      = {0}", ss.getSongParts());
+
+        LOGGER.log(Level.INFO, "Song chord leadsheet= {0}", chordLeadsheet.toDebugString());
+        LOGGER.log(Level.INFO, "Song structure      = {0}", songStructure);
 
 
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
         LOGGER.info("Changing the song structure...");
         // Duplicate the initial SongPart
-        var spt0 = ss.getSongPart(0);
+        var spt0 = songStructure.getSongPart(0);
         int spt0Size = spt0.getNbBars();        // =12
-        var spt1 = spt0.clone(null, spt0Size, spt0Size, null);  // Create a SongPart copy which starts right after spt0
+        var spt1 = spt0.clone(null, spt0Size, spt0Size, spt0.getParentSection());  // Create a SongPart copy which starts right after spt0
         try
         {
-            ss.addSongParts(Arrays.asList(spt1));   // Song now contains 2 identical song parts, song size is 24 bars
+            songStructure.addSongParts(Arrays.asList(spt1));   // Song now contains 2 identical song parts, song size is 24 bars
         } catch (UnsupportedEditException ex)
         {
-            Exceptions.printStackTrace(ex);
+            exitWithError(ex);
         }
-
         // Change the Variation rhythm parameter value of the 2nd song part
         var spt1Rhythm = spt1.getRhythm();
         var rpVariation = RP_STD_Variation.getVariationRp(spt1Rhythm);
         if (rpVariation != null)
         {
-            ss.setRhythmParameterValue(spt1, rpVariation, "Main D-1");
+            songStructure.setRhythmParameterValue(spt1, rpVariation, "Main D-1");
         }
-        LOGGER.log(Level.INFO, "Song structure changed= {0}", ss.getSongParts());
+        LOGGER.log(Level.INFO, "Song structure changed= {0}", songStructure);
 
-        
+
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
-        LOGGER.info("Playing the song...");
+        LOGGER.info("Configuring Midi...");
+        MidiMix midiMix = null;
         try
         {
-            MidiMix midiMix = MidiMixManager.getDefault().createMix(song);      // throws MidiUnavailableException
+            midiMix = MidiMixManager.getDefault().createMix(song); // throws MidiUnavailableException
+        } catch (MidiUnavailableException ex)
+        {
+            exitWithError(ex);
+        }
+        OutputSynth outputSynth = OutputSynthManager.getDefault().getDefaultOutputSynth();  // OutputSynth for the current default Midi OUT device
+        // Try to fix the MidiMix to match the OutputSynth capabilities
+        // Important when using a GM synth (drums on channel 10 only), especially with Yamaha styles which often use 2 drums/percussion channels (9 and 10).        
+        outputSynth.fixInstruments(midiMix, true);
+        // Send all Midi messages to configure the connected synth
+        midiMix.sendAllMidiMixMessages();
+        midiMix.sendAllMidiVolumeMessages();
+        LOGGER.log(Level.INFO, midiMix.toDumpString());
+
+
+        // =============================================================================================
+        LOGGER.info("-------------------------------------------------------");
+        LOGGER.info("Playing the song for 60 seconds...");
+        try
+        {
             song.setTempo(120);
             var mc = MusicController.getInstance();
             var session = StaticSongSession.getSession(new SongContext(song, midiMix));
             mc.setPlaybackSession(session, false);             // throws MusicGenerationException
             mc.play(0);     // throws MusicGenerationException
-            Thread.sleep(5000);
-        } catch (MidiUnavailableException | MusicGenerationException | InterruptedException ex)
+            Thread.sleep(60000);
+        } catch (MusicGenerationException | InterruptedException ex)
         {
-            Exceptions.printStackTrace(ex);
+            exitWithError(ex);
         }
 
 //
@@ -238,7 +273,14 @@ public class ToolkitDemoApp
 //            Exceptions.printStackTrace(ex);
 //        }
 
+        LOGGER.info("Exiting");
         System.exit(0);
+    }
+
+    private static void exitWithError(Exception ex)
+    {
+        Exceptions.printStackTrace(ex);
+        System.exit(1);
     }
 
     /**
