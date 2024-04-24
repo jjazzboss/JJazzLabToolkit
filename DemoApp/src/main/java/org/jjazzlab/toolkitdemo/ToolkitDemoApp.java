@@ -52,7 +52,7 @@ public class ToolkitDemoApp
     private static final Logger LOGGER = getLogger();
 
     // Change these 2 values to match your system
-    private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "/home/jerome/JJazzLab-SoundFont.sf2";
+    private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "JJazzLab-SoundFont.sf2";
     private static String PATH_TO_SNG_FILE = "/home/jerome/MySong.sng";
 
 
@@ -74,7 +74,7 @@ public class ToolkitDemoApp
 
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
-        LOGGER.info("Setting Midi output...");
+        LOGGER.info("Setting Midi OUT device...");
 
         boolean fluidsynthInstalled = PATH_TO_JJAZZLAB_SOUNDFONT_SF2 != null && activateFluidSynth(PATH_TO_JJAZZLAB_SOUNDFONT_SF2);
         if (!fluidsynthInstalled)
@@ -201,6 +201,7 @@ public class ToolkitDemoApp
         LOGGER.log(Level.INFO, "Song structure changed= {0}", songStructure);
 
 
+        
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
         LOGGER.info("Configuring Midi...");
@@ -217,6 +218,7 @@ public class ToolkitDemoApp
         // Important when using a GM synth (drums on channel 10 only), especially with Yamaha styles which often use 2 drums/percussion channels (9 and 10).        
         outputSynth.fixInstruments(midiMix, true);
         // Send all Midi messages to configure the connected synth
+        outputSynth.getUserSettings().sendModeOnUponPlaySysexMessages();    // Configure GM, GM2, XG, GS if required
         midiMix.sendAllMidiMixMessages();
         midiMix.sendAllMidiVolumeMessages();
         LOGGER.log(Level.INFO, midiMix.toDumpString());
