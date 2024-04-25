@@ -1,8 +1,11 @@
 package org.jjazzlab.toolkitdemo;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.midi.MidiUnavailableException;
@@ -11,12 +14,14 @@ import org.jjazz.chordleadsheet.api.UnsupportedEditException;
 import org.jjazz.chordleadsheet.api.item.CLI_Factory;
 import org.jjazz.embeddedsynth.api.EmbeddedSynthException;
 import org.jjazz.embeddedsynth.spi.EmbeddedSynthProvider;
+import org.jjazz.fluidsynthembeddedsynth.api.FluidSynthEmbeddedSynth;
 import org.jjazz.fluidsynthembeddedsynth.api.FluidSynthEmbeddedSynthProvider;
 import org.jjazz.harmony.api.TimeSignature;
 import org.jjazz.midi.api.JJazzMidiSystem;
 import org.jjazz.midimix.api.MidiMix;
 import org.jjazz.midimix.spi.MidiMixManager;
 import org.jjazz.musiccontrol.api.MusicController;
+import org.jjazz.musiccontrol.api.SongMidiExporter;
 import org.jjazz.musiccontrol.api.playbacksession.StaticSongSession;
 import org.jjazz.outputsynth.api.OutputSynth;
 import org.jjazz.outputsynth.spi.OutputSynthManager;
@@ -38,16 +43,16 @@ import org.openide.util.Exceptions;
 public class ToolkitDemoApp
 {
 
-    static Logger getLogger()
+    static
     {
+        // Set string format for all Loggers
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s %3$s %5$s%n");
-        return Logger.getLogger(ToolkitDemoApp.class.getSimpleName());
     }
-    private static final Logger LOGGER = getLogger();
+    private static final Logger LOGGER = Logger.getLogger(ToolkitDemoApp.class.getSimpleName());
 
     // Change these 2 values to match your system
-    private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "JJazzLab-SoundFont.sf2";
-    private static String PATH_TO_SNG_FILE = "C:\\Users\\Jerome\\JJazzLab\\Blackbird.sng";
+    private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "JJazzLab-SoundFont.sf2";        // Or use ""
+    private static String PATH_TO_SNG_FILE = "C:\\Users\\Jerome\\JJazzLab\\Blackbird.sng";  // Or use ""
 
 
     public static void main(String[] args)
@@ -68,10 +73,14 @@ public class ToolkitDemoApp
 
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
-        LOGGER.info("Setting Midi OUT device...");
+        LOGGER.info("Setting builtin software synth...");
 
-        boolean fluidsynthInstalled = PATH_TO_JJAZZLAB_SOUNDFONT_SF2 != null && activateFluidSynth(PATH_TO_JJAZZLAB_SOUNDFONT_SF2);
-        if (!fluidsynthInstalled)
+        FluidSynthEmbeddedSynth fluidSynth = activateFluidSynth(PATH_TO_JJAZZLAB_SOUNDFONT_SF2);
+        if (fluidSynth != null)
+        {
+            LOGGER.info("Using JJazzLab FluidSynth");
+        }
+        else
         {
             LOGGER.info("Using builtin Java synth as sound device (LOW QUALITY!)");
             var jms = JJazzMidiSystem.getInstance();
@@ -146,25 +155,15 @@ public class ToolkitDemoApp
                 exitWithError(ex);
             }
 
-            // Or simpler using the TextReader song importer:
+            // Or simpler, use the TextReader song importer:
 //            TextReader tr = new TextReader(
 //                    """
 //                    |4/4 F7|    |     |    |
 //                    |Bb7   |    |F7   |    | 
 //                    |C7    |Bb7 |F7   |    |""");
-//            song = tr.readSong();           // might be null
-//            cls = song.getChordLeadSheet();
-//            ss = song.getSongStructure();
-
-            // Or simpler using the TextReader song importer:
-//            TextReader tr = new TextReader(
-//                    """
-//                    |4/4 F7|    |     |    |
-//                    |Bb7   |    |F7   |    | 
-//                    |C7    |Bb7 |F7   |    |""");
-//            song = tr.readSong();           // might be null
-//            cls = song.getChordLeadSheet();
-//            ss = song.getSongStructure();
+//            song = tr.readSong();           
+//            chordLeadsheet = song.getChordLeadSheet();
+//            songStructure = song.getSongStructure();
         }
 
         LOGGER.log(Level.INFO, "Song chord leadsheet= {0}", chordLeadsheet.toDebugString());
@@ -202,7 +201,7 @@ public class ToolkitDemoApp
 
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
-        LOGGER.info("Configuring Midi...");
+        LOGGER.info("Configuring Midi mix...");
         MidiMix midiMix = null;
         try
         {
@@ -212,8 +211,9 @@ public class ToolkitDemoApp
             exitWithError(ex);
         }
         OutputSynth outputSynth = OutputSynthManager.getDefault().getDefaultOutputSynth();  // OutputSynth for the current default Midi OUT device
-        // Try to fix the MidiMix to match the OutputSynth capabilities
-        // Important when using a GM synth (drums on channel 10 only), especially with Yamaha styles which often use 2 drums/percussion channels (9 and 10).        
+        // Try to make the MidiMix match the OutputSynth capabilities
+        // This is important when using a GM synth (drums on channel 10 only), rerouting to Drums channel might be required, especially with Yamaha styles 
+        // which often use 2 drums/percussion channels (9 and 10).        
         outputSynth.fixInstruments(midiMix, true);
         // Send all Midi messages to configure the connected synth (for each used channel select patch and set volume/pan/chorus/reverb settings)
         outputSynth.getUserSettings().sendModeOnUponPlaySysexMessages();    // Configure GM, GM2, XG, GS if required
@@ -224,58 +224,54 @@ public class ToolkitDemoApp
 
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
-        LOGGER.info("Playing the song for 60 seconds...");
+        LOGGER.info("Playing the song...");
         try
         {
             song.setTempo(120);
             var mc = MusicController.getInstance();
             var session = StaticSongSession.getSession(new SongContext(song, midiMix));
             mc.setPlaybackSession(session, false);             // throws MusicGenerationException
-            mc.play(0);     // throws MusicGenerationException
-            Thread.sleep(60000);
-        } catch (MusicGenerationException | InterruptedException ex)
+            mc.play(0);     // throws MusicGenerationException            
+        } catch (MusicGenerationException ex)
         {
             exitWithError(ex);
         }
 
-//
-//        try
-//        {
-//            LOGGER.log(Level.INFO, "Generating music and exporting to Midi file...");
-//            File midiFile = Files.createTempFile("tmp", ".mid").toFile();
-//            MidiMix mm = MidiMixManager.getDefault().createMix(song);
-////            for (var insMix : mm.getInstrumentMixes())
-////            {
-////                insMix.setMute(true);
-////            }
-//            if (SongMidiExporter.songToMidiFile(song, mm, midiFile, null))
-//            {
-//                File audioFile = Files.createTempFile("tmp", ".wav").toFile();
-//                fluidSynth.generateWavFile(midiFile, audioFile);
-//                LOGGER.log(Level.INFO, "Export to {0} complete !", midiFile.getAbsolutePath());
-//            }
-//
-//
-//            song.setTempo(120);
-//            var mc = MusicController.getInstance();
-//            var session = StaticSongSession.getSession(new SongContext(song, mm));
-//            mc.setPlaybackSession(session, false);
-//            mc.play(0);
-//            Thread.sleep(5000);
-//            mc.pause();
-//            Thread.sleep(2000);
-//            mc.resume();
-//            Thread.sleep(3000);
-//
-//
-//        } catch (ParseException | UnsupportedEditException | IOException | MidiUnavailableException | EmbeddedSynthException | MusicGenerationException | InterruptedException ex)
-//        {
-//            Exceptions.printStackTrace(ex);
-//        }
+        Scanner s = new Scanner(System.in);
+        System.out.println("Press Enter to continue...");
+        s.nextLine();
 
+
+        // =============================================================================================
+        LOGGER.info("-------------------------------------------------------");
+        LOGGER.info("Exporting song to Midi + Wav files...");
+        try
+        {
+            File midiFile = Files.createTempFile("tmp", ".mid").toFile();       // throws IOException
+            if (SongMidiExporter.songToMidiFile(song, midiMix, midiFile, null))
+            {
+                LOGGER.log(Level.INFO, "Midi export to {0} complete !", midiFile.getAbsolutePath());
+
+                if (fluidSynth != null)
+                {
+                    File wavFile = Files.createTempFile("tmp", ".wav").toFile();
+                    fluidSynth.generateWavFile(midiFile, wavFile);        // throws EmbeddedSynthException
+                    LOGGER.log(Level.INFO, "Audio export to {0} complete !", wavFile.getAbsolutePath());
+                } else
+                {
+                    LOGGER.info("JJazzLab embedded FluidSynth is not installed, can not export to audio.");
+                }
+            }
+        } catch (IOException | EmbeddedSynthException ex)
+        {
+            exitWithError(ex);
+        }
+
+        
         LOGGER.info("Exiting");
         System.exit(0);
     }
+
 
     private static void exitWithError(Exception ex)
     {
@@ -289,34 +285,37 @@ public class ToolkitDemoApp
      * pom.xml must include a dependency on the org.jjazzlab.plugins-fluidsynthembeddedsynth plugin.
      *
      * @param soundfontPath
-     * @return True if fluidsynth was successfully setup
+     * @return The fluidsynth instance if success, null otherwise
      */
-    private static boolean activateFluidSynth(String soundfontPath)
+    private static FluidSynthEmbeddedSynth activateFluidSynth(String soundfontPath)
     {
-        boolean b = false;
+        if (soundfontPath == null)
+        {
+            return null;
+        }
+        FluidSynthEmbeddedSynth synth = null;
         File soundfontFile = new File(soundfontPath);
-
 
         var synthProvider = EmbeddedSynthProvider.getDefaultProvider();
         if (synthProvider instanceof FluidSynthEmbeddedSynthProvider fluidSynthProvider)
         {
-            var fluidSynth = fluidSynthProvider.getEmbeddedSynth();
-            fluidSynth.setSoundFontFile(soundfontFile);
+            synth = fluidSynthProvider.getEmbeddedSynth();
+            synth.setSoundFontFile(soundfontFile);
             try
             {
                 synthProvider.setEmbeddedSynthActive(true);
-                b = true;
             } catch (EmbeddedSynthException ex)
             {
-                LOGGER.log(Level.WARNING, "setupFluidSynth() Can't activate FluidSynth ex={0}", ex.getMessage());
+                LOGGER.log(Level.WARNING, "activateFluidSynth() Can't activate FluidSynth ex={0}", ex.getMessage());
+                synth = null;
             }
 
         } else
         {
-            LOGGER.log(Level.SEVERE, "setupFluidSynth() No FluidSynthEmbeddedSynthProvider instance found");
+            LOGGER.log(Level.SEVERE, "activateFluidSynth() No FluidSynthEmbeddedSynthProvider instance found");
         }
 
-        return b;
+        return synth;
     }
 
 
