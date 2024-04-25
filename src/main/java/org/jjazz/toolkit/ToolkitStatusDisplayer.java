@@ -37,12 +37,7 @@ public class ToolkitStatusDisplayer extends StatusDisplayer
 
     private String text;
 
-    static Logger getLogger()
-    {
-        System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tT %4$s %5$s%6$s%n");
-        return Logger.getLogger(ToolkitStatusDisplayer.class.getSimpleName());
-    }
-    private static final Logger LOGGER = getLogger();
+    private static final Logger LOGGER = Logger.getLogger(ToolkitStatusDisplayer.class.getSimpleName());
 
     public ToolkitStatusDisplayer()
     {

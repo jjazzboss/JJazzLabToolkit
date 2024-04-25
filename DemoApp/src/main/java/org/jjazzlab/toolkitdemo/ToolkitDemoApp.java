@@ -1,8 +1,6 @@
 package org.jjazzlab.toolkitdemo;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -13,16 +11,12 @@ import org.jjazz.chordleadsheet.api.UnsupportedEditException;
 import org.jjazz.chordleadsheet.api.item.CLI_Factory;
 import org.jjazz.embeddedsynth.api.EmbeddedSynthException;
 import org.jjazz.embeddedsynth.spi.EmbeddedSynthProvider;
-import org.jjazz.fluidsynthembeddedsynth.api.FluidSynthEmbeddedSynth;
 import org.jjazz.fluidsynthembeddedsynth.api.FluidSynthEmbeddedSynthProvider;
-import org.jjazz.harmony.api.Position;
 import org.jjazz.harmony.api.TimeSignature;
-import org.jjazz.importers.api.TextReader;
 import org.jjazz.midi.api.JJazzMidiSystem;
 import org.jjazz.midimix.api.MidiMix;
 import org.jjazz.midimix.spi.MidiMixManager;
 import org.jjazz.musiccontrol.api.MusicController;
-import org.jjazz.musiccontrol.api.SongMidiExporter;
 import org.jjazz.musiccontrol.api.playbacksession.StaticSongSession;
 import org.jjazz.outputsynth.api.OutputSynth;
 import org.jjazz.outputsynth.spi.OutputSynthManager;
@@ -46,14 +40,14 @@ public class ToolkitDemoApp
 
     static Logger getLogger()
     {
-        System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tT %4$s %5$s%6$s%n");
+        System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s %3$s %5$s%n");
         return Logger.getLogger(ToolkitDemoApp.class.getSimpleName());
     }
     private static final Logger LOGGER = getLogger();
 
     // Change these 2 values to match your system
     private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "JJazzLab-SoundFont.sf2";
-    private static String PATH_TO_SNG_FILE = "/home/jerome/MySong.sng";
+    private static String PATH_TO_SNG_FILE = "C:\\Users\\Jerome\\JJazzLab\\Blackbird.sng";
 
 
     public static void main(String[] args)
@@ -196,12 +190,16 @@ public class ToolkitDemoApp
         var rpVariation = RP_STD_Variation.getVariationRp(spt1Rhythm);
         if (rpVariation != null)
         {
-            songStructure.setRhythmParameterValue(spt1, rpVariation, "Main D-1");
+            String currentValue = spt1.getRPValue(rpVariation);
+            String nextValue = rpVariation.getNextValue(currentValue);
+            songStructure.setRhythmParameterValue(spt1, rpVariation, nextValue);
+        } else
+        {
+            LOGGER.log(Level.WARNING, "Rhythm {0} does not use a RP_STD_VARIATION rhythm parameter", spt1Rhythm.getName());
         }
         LOGGER.log(Level.INFO, "Song structure changed= {0}", songStructure);
 
 
-        
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
         LOGGER.info("Configuring Midi...");
@@ -217,7 +215,7 @@ public class ToolkitDemoApp
         // Try to fix the MidiMix to match the OutputSynth capabilities
         // Important when using a GM synth (drums on channel 10 only), especially with Yamaha styles which often use 2 drums/percussion channels (9 and 10).        
         outputSynth.fixInstruments(midiMix, true);
-        // Send all Midi messages to configure the connected synth
+        // Send all Midi messages to configure the connected synth (for each used channel select patch and set volume/pan/chorus/reverb settings)
         outputSynth.getUserSettings().sendModeOnUponPlaySysexMessages();    // Configure GM, GM2, XG, GS if required
         midiMix.sendAllMidiMixMessages();
         midiMix.sendAllMidiVolumeMessages();

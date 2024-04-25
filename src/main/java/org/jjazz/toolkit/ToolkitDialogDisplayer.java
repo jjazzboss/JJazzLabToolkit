@@ -36,12 +36,7 @@ import org.openide.util.lookup.ServiceProvider;
 public class ToolkitDialogDisplayer extends DialogDisplayer
 {
 
-    static Logger getLogger()
-    {
-        System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tT %4$s %5$s%6$s%n");
-        return Logger.getLogger(ToolkitDialogDisplayer.class.getSimpleName());
-    }
-    private static final Logger LOGGER = getLogger();
+    private static final Logger LOGGER = Logger.getLogger(ToolkitDialogDisplayer.class.getSimpleName());
 
     public ToolkitDialogDisplayer()
     {
