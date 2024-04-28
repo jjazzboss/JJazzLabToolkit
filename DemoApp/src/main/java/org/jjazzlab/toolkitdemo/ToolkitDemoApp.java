@@ -46,7 +46,7 @@ public class ToolkitDemoApp
     static
     {
         // Set string format for all Loggers
-        System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s %3$s %5$s%n");
+        System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s %3$s  %5$s %n");
     }
     private static final Logger LOGGER = Logger.getLogger(ToolkitDemoApp.class.getSimpleName());
 

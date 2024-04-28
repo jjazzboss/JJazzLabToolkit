@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion> 
     <groupId>org.jjazzlab</groupId>         
-    <artifactId>toolkit</artifactId>
+    <artifactId>jjazzlab-toolkit</artifactId>
     <version>4.0.3-SNAPSHOT</version>
-    <name>JJazzLabToolkit</name>
+    <name>JJazzLab Toolkit</name>
     <packaging>jar</packaging>    
     
    
@@ -19,101 +19,33 @@
     <build>
         <pluginManagement>
             <plugins>
-                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${jjazzlab.maven.compiler.plugin.version}</version>
                     <configuration>
                         <release>${jjazzlab.compiler.release}</release>
-                        <showDeprecation>${jjazzlab.javac.showDeprecation}</showDeprecation>
-                        <showWarnings>${jjazzlab.javac.showWarnings}</showWarnings>
-                        <useIncrementalCompilation>false</useIncrementalCompilation>    <!--  see https://stackoverflow.com/questions/76349126/building-parent-project-always-recompiles-all-modules -->
-                        <!-- fork must be true to pass -J arguments to the compiler -->                                                
-                        <fork>${jjazzlab.javac.fork}</fork>
-                        <compilerArgs>
-                            <arg>${jjazzlab.javac.xlint}</arg>
-                        </compilerArgs>
                     </configuration>
-                </plugin>                                                                  
-                
-                
-                <!-- Assembler to produce final jar -->
+                </plugin>  
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.7.0</version>
-                    <configuration>
-                        <descriptorRefs>
-                            <descriptorRef>jar-with-dependencies</descriptorRef>
-                        </descriptorRefs>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                            <phase>package</phase> <!-- bind to the packaging phase  -->
-                            <goals>
-                                <goal>single</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.5.3</version>
                 </plugin>
-            
-            
-                <!-- Make sure we don't embedd JJazzLab application/plugin dependencies -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.4.1</version>
-                    <executions>
-                        <execution>
-                            <id>enforce-banned-dependencies</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <bannedDependencies>
-                                        <searchTransitive>true</searchTransitive>
-                                        <excludes>
-                                            <exclude>org.jjazzlab</exclude>
-                                            <exclude>org.jjazzlab.plugins</exclude>
-                                        </excludes>   
-                                        <message>Found JJazzLab application or plugins modules in dependencies</message> 
-                                    </bannedDependencies>
-                                </rules>
-                                <fail>true</fail>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>                
-                
-                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.6.3</version>
-                    <configuration>                            
-                        <excludePackageNames>org.jjazz.embeddedsynth.lame.*</excludePackageNames>
-                        <show>public</show>
-                        <nohelp>false</nohelp>
-                        <detectLinks>false</detectLinks>
-                        <detectOfflineLinks>true</detectOfflineLinks>   
-                        <quiet>false</quiet>
-                        <doclint>none</doclint>
-                        <release>${jjazzlab.compiler.release}</release>   
-                        <sourceFileIncludes>
-                            <include>org/jjazz/**/api/**/*.java</include>
-                            <include>org/jjazz/**/spi/**/*.java</include>
-                        </sourceFileIncludes>
-                    </configuration>                                                          
-                </plugin>                      
-                
-                
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.4.1</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.3.0</version>                                
+                    <version>3.4.1</version>                                
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -124,14 +56,98 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>3.1.1</version>
-                </plugin>      
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.3.1</version>
-                </plugin>    
+                </plugin>   
             </plugins>
         </pluginManagement>
+        
+        
+        <plugins>              
+            
+            <!-- Assembler to produce uber-jars for binaries and source code -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-jar-with-dependencies-and-sources-jar</id>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <createSourcesJar>true</createSourcesJar>
+                            <transformers>
+                                <!-- Make sure to have all the META-INF/services files merged -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            
+            <!-- Produce the final -javadoc.jar file from core dependencies -javadoc.jar files -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>javadoc-dependencies-in-a-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>          
+                        <configuration>
+                            <skip>false</skip>
+                            <sourceFileIncludes>
+                                <include>org/jjazz/**/api/**/*.java</include>
+                                <include>org/jjazz/**/spi/**/*.java</include>
+                            </sourceFileIncludes>                                                        
+                            <show>public</show>
+                            <nohelp>false</nohelp>
+                            <detectLinks>false</detectLinks>
+                            <detectOfflineLinks>true</detectOfflineLinks>   
+                            <quiet>false</quiet>
+                            <doclint>none</doclint>
+                            <release>${jjazzlab.compiler.release}</release>   
+                            <doctitle>JJazzLab Core Toolkit ${project.version} API Index</doctitle>
+                            <includeDependencySources>true</includeDependencySources>                                                
+                        </configuration>                                    
+                    </execution>
+                </executions>                                                            
+            </plugin>                      
+                
+                
+                
+            <!-- Make sure we don't embedd JJazzLab application/plugin dependencies -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-banned-dependencies</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <searchTransitive>true</searchTransitive>
+                                    <excludes>
+                                        <exclude>org.jjazzlab</exclude>
+                                        <exclude>org.jjazzlab.plugins</exclude>
+                                    </excludes>   
+                                    <message>Found JJazzLab application or plugins modules in dependencies</message> 
+                                </bannedDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>                
+   
+        </plugins>
     </build>
     
     
