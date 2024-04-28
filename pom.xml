@@ -4,9 +4,41 @@
     <groupId>org.jjazzlab</groupId>         
     <artifactId>jjazzlab-toolkit</artifactId>
     <version>4.0.3-SNAPSHOT</version>
-    <name>JJazzLab Toolkit</name>
+    <name>jjazzlab-toolkit</name>
     <packaging>jar</packaging>    
-    
+
+
+    <!-- project meta-data  -->
+    <url>https://github.com/jjazzboss/JJazzLabToolkit</url>
+    <description>JJazzLab core in one JAR library</description>
+    <organization>
+        <url>https://www.jjazzlab.org</url>
+    </organization>   
+    <licenses>
+        <license>
+            <name>GNU LESSER GENERAL PUBLIC LICENSE Version 2.1</name>
+            <url>https://www.gnu.org/licenses/lgpl-2.1.en.html#license-text</url>
+        </license>
+    </licenses>      
+    <developers>
+        <developer>
+            <id>jlelasseux</id>
+            <name>Jerome Lelasseux</name>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <organization>JJazzLab</organization>
+            <organizationUrl>https://www.jjazzlab.org</organizationUrl>            
+            <email>jl@jjazzlab.org</email>
+            <timezone>Europe/Paris</timezone>
+        </developer>
+    </developers>    
+    <scm>
+        <connection>scm:git:git://github.com/jjazzboss/JJazzLabToolkit.git</connection>
+        <developerConnection>scm:git:git@github.com:jjazzboss/JJazzLabToolkit.git</developerConnection>
+        <url>https://github.com/jjazzboss/JJazzLabToolkit</url>
+    </scm>          
    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>         
@@ -43,6 +75,11 @@
                     <version>3.4.1</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.4.0</version>        
+                </plugin>        
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.4.1</version>                                
@@ -57,11 +94,17 @@
                     <artifactId>maven-install-plugin</artifactId>
                     <version>3.1.1</version>
                 </plugin>   
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.2.4</version>
+                </plugin>                
             </plugins>
         </pluginManagement>
         
         
         <plugins>              
+            
             
             <!-- Assembler to produce uber-jars for binaries and source code -->
             <plugin>
@@ -93,7 +136,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>javadoc-dependencies-in-a-jar</id>
+                        <id>build-javadoc-jar</id>
                         <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
@@ -118,7 +161,34 @@
                 </executions>                                                            
             </plugin>                      
                 
-                
+            <!-- GPG Signed Components -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <executable>c:/Program Files (x86)/GnuPG/bin/gpg.exe</executable>       
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <tokenAuth>true</tokenAuth>
+                    <skipPublishing>true</skipPublishing>
+                </configuration>
+            </plugin>
                 
             <!-- Make sure we don't embedd JJazzLab application/plugin dependencies -->
             <plugin>

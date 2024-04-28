@@ -1,3 +1,5 @@
 /target/
 /DemoApp/target/
 *.sf2
+dependency-reduced-pom.xml
+
