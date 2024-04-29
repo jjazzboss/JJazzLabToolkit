@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-CompileOnly</actionName>
+            <displayName>CompileOnly</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+            </goals>
+            <activatedProfiles>
+                <activatedProfile>CompileOnly</activatedProfile>
+            </activatedProfiles>
+        </action>
+    </actions>

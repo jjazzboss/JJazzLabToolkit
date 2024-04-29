@@ -117,7 +117,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <skip>false</skip>
                             <createSourcesJar>true</createSourcesJar>
                             <transformers>
                                 <!-- Make sure to have all the META-INF/services files merged -->
@@ -142,7 +141,6 @@
                             <goal>jar</goal>
                         </goals>          
                         <configuration>
-                            <skip>false</skip>
                             <sourceFileIncludes>
                                 <include>org/jjazz/**/api/**/*.java</include>
                                 <include>org/jjazz/**/spi/**/*.java</include>
@@ -220,6 +218,37 @@
         </plugins>
     </build>
     
+    <profiles>
+        <profile>
+            <id>CompileOnly</id>
+            <build>
+                <plugins>              
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>         
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>                                 
+                </plugins>
+            </build>
+        </profile>
+        
+    </profiles>
     
     <dependencies>
         
