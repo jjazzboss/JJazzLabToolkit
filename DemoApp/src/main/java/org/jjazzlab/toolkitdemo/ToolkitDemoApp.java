@@ -12,10 +12,11 @@ import javax.sound.midi.MidiUnavailableException;
 import org.jjazz.chordleadsheet.api.ChordLeadSheet;
 import org.jjazz.chordleadsheet.api.UnsupportedEditException;
 import org.jjazz.chordleadsheet.api.item.CLI_Factory;
+import org.jjazz.embeddedsynth.api.EmbeddedSynth;
 import org.jjazz.embeddedsynth.api.EmbeddedSynthException;
+import org.jjazz.embeddedsynth.api.Mp3Encoder;
 import org.jjazz.embeddedsynth.spi.EmbeddedSynthProvider;
-import org.jjazz.fluidsynthembeddedsynth.api.FluidSynthEmbeddedSynth;
-import org.jjazz.fluidsynthembeddedsynth.api.FluidSynthEmbeddedSynthProvider;
+import org.jjazz.embeddedsynth.spi.Mp3EncoderProvider;
 import org.jjazz.harmony.api.TimeSignature;
 import org.jjazz.midi.api.JJazzMidiSystem;
 import org.jjazz.midimix.api.MidiMix;
@@ -35,6 +36,7 @@ import org.jjazz.song.api.SongFactory;
 import org.jjazz.songcontext.api.SongContext;
 import org.jjazz.songstructure.api.SongStructure;
 import org.jjazz.testplayerservice.spi.TestPlayer;
+import org.jjazz.utilities.api.Utilities;
 import org.openide.util.Exceptions;
 
 /**
@@ -75,12 +77,11 @@ public class ToolkitDemoApp
         LOGGER.info("-------------------------------------------------------");
         LOGGER.info("Setting builtin software synth...");
 
-        FluidSynthEmbeddedSynth fluidSynth = activateFluidSynth(PATH_TO_JJAZZLAB_SOUNDFONT_SF2);
+        EmbeddedSynth fluidSynth = activateFluidSynth(PATH_TO_JJAZZLAB_SOUNDFONT_SF2);
         if (fluidSynth != null)
         {
             LOGGER.info("Using JJazzLab FluidSynth");
-        }
-        else
+        } else
         {
             LOGGER.info("Using builtin Java synth as sound device (LOW QUALITY!)");
             var jms = JJazzMidiSystem.getInstance();
@@ -111,7 +112,7 @@ public class ToolkitDemoApp
         LOGGER.log(Level.INFO, "Populating the RhythmDatabase...");
         DefaultRhythmDatabase rdb = (DefaultRhythmDatabase) RhythmDatabase.getDefault();
         // This will poll all the RhythmProvider instances available in the global lookup 
-        // To get the Yamaha file based "YamJJazz" RhythmProvider, make sure pom.xml includes a dependency on the org.jjazzlab.plugins-yamjjazz plugin.
+        // NOTE: the org.jjazzlab.plugins-yamjjazz plugin should be in the classpath to get the Yamaha file based "YamJJazz" RhythmProviders (add a dependency in pom.xml)
         rdb.addRhythmsFromRhythmProviders(false, false, true);
 
 
@@ -244,19 +245,32 @@ public class ToolkitDemoApp
 
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
-        LOGGER.info("Exporting song to Midi + Wav files...");
+        LOGGER.info("Exporting song to Midi + Audio files...");
         try
         {
             File midiFile = Files.createTempFile("tmp", ".mid").toFile();       // throws IOException
+
             if (SongMidiExporter.songToMidiFile(song, midiMix, midiFile, null))
             {
                 LOGGER.log(Level.INFO, "Midi export to {0} complete !", midiFile.getAbsolutePath());
 
                 if (fluidSynth != null)
                 {
-                    File wavFile = Files.createTempFile("tmp", ".wav").toFile();
+                    // WAV export
+                    File wavFile = new File(Utilities.replaceExtension(midiFile.getAbsolutePath(), ".wav"));
                     fluidSynth.generateWavFile(midiFile, wavFile);        // throws EmbeddedSynthException
-                    LOGGER.log(Level.INFO, "Audio export to {0} complete !", wavFile.getAbsolutePath());
+                    LOGGER.log(Level.INFO, "Audio (WAV) export to {0} complete !", wavFile.getAbsolutePath());
+
+                    
+                    // MP3 conversion
+                    Mp3Encoder encoder = Mp3EncoderProvider.getDefault();
+                    if (encoder != null)
+                    {
+                        LOGGER.log(Level.INFO, "Converting WAV file to MP3...");
+                        File mp3File = new File(Utilities.replaceExtension(midiFile.getAbsolutePath(), ".mp3"));
+                        encoder.encode(wavFile, mp3File, false, false);
+                        LOGGER.log(Level.INFO, "Audio (MP3) export to {0} complete !", mp3File.getAbsolutePath());
+                    }
                 } else
                 {
                     LOGGER.info("JJazzLab embedded FluidSynth is not installed, can not export to audio.");
@@ -267,7 +281,7 @@ public class ToolkitDemoApp
             exitWithError(ex);
         }
 
-        
+
         LOGGER.info("Exiting");
         System.exit(0);
     }
@@ -282,27 +296,28 @@ public class ToolkitDemoApp
     /**
      * Set up the FluidSynthEmbeddedSynth instance.
      * <p>
-     * pom.xml must include a dependency on the org.jjazzlab.plugins-fluidsynthembeddedsynth plugin.
+     * NOTE: the org.jjazzlab.plugins-fluidsynthembeddedsynth plugin must be in the classpath (add a dependency in pom.xml).
      *
      * @param soundfontPath
      * @return The fluidsynth instance if success, null otherwise
      */
-    private static FluidSynthEmbeddedSynth activateFluidSynth(String soundfontPath)
+    private static EmbeddedSynth activateFluidSynth(String soundfontPath)
     {
         if (soundfontPath == null)
         {
             return null;
         }
-        FluidSynthEmbeddedSynth synth = null;
+        EmbeddedSynth synth = null;
         File soundfontFile = new File(soundfontPath);
 
         var synthProvider = EmbeddedSynthProvider.getDefaultProvider();
-        if (synthProvider instanceof FluidSynthEmbeddedSynthProvider fluidSynthProvider)
+        if (synthProvider != null && synthProvider.getId().equals("FluidSynthEmbeddedSynthProviderId"))
         {
-            synth = fluidSynthProvider.getEmbeddedSynth();
-            synth.setSoundFontFile(soundfontFile);
+            synth = synthProvider.getEmbeddedSynth();
+            synth.configure(soundfontFile);
             try
             {
+                // This will load the FluidSynth native resources and do everything required so that FluidSynth becomes the output synth
                 synthProvider.setEmbeddedSynthActive(true);
             } catch (EmbeddedSynthException ex)
             {

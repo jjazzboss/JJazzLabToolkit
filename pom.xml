@@ -144,7 +144,8 @@
                             <sourceFileIncludes>
                                 <include>org/jjazz/**/api/**/*.java</include>
                                 <include>org/jjazz/**/spi/**/*.java</include>
-                            </sourceFileIncludes>                                                        
+                            </sourceFileIncludes>      
+                            <locale>en</locale>                                                  
                             <show>public</show>
                             <nohelp>false</nohelp>
                             <detectLinks>false</detectLinks>
@@ -153,7 +154,7 @@
                             <doclint>none</doclint>
                             <release>${jjazzlab.compiler.release}</release>   
                             <doctitle>JJazzLab Core Toolkit ${project.version} API Index</doctitle>
-                            <includeDependencySources>true</includeDependencySources>                                                
+                            <includeDependencySources>true</includeDependencySources>       <!-- collect all direct dependencies' javadoc -->                                         
                         </configuration>                                    
                     </execution>
                 </executions>                                                            
@@ -188,7 +189,7 @@
                 </configuration>
             </plugin>
                 
-            <!-- Make sure we don't embedd JJazzLab application/plugin dependencies -->
+            <!-- Make sure we don't embed JJazzLab application/plugin dependencies -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -203,7 +204,7 @@
                                 <bannedDependencies>
                                     <searchTransitive>true</searchTransitive>
                                     <excludes>
-                                        <exclude>org.jjazzlab</exclude>
+                                        <exclude>org.jjazzlab.app</exclude>
                                         <exclude>org.jjazzlab.plugins</exclude>
                                     </excludes>   
                                     <message>Found JJazzLab application or plugins modules in dependencies</message> 
