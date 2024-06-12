@@ -4,7 +4,12 @@ All [JJazzLab](https://github.com/jjazzboss/JJazzLab) core in one jar.
 
 The JJazzLab Toolkit is the "engine" that powers the JJazzLab application: object models and algorithms, without graphical user interface.
 
-Use it to build a utility which export songs to Midi or audio files in batch mode, to experiment with backing track generation, etc.
+For example, you can use it to :
+
+- add automatic backing track generation to your app
+- build a utility which converts in batch mode JJazzLab songs to .mp3 files
+- experiment with backing track generation algorithms
+- ...
 
 ![JJazzLab Toolkit architecture](https://github.com/jjazzboss/JJazzLab/blob/master/graphics/JJazzLab-Core-blocks.png)
 
