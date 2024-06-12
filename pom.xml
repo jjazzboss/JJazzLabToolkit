@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion> 
     <groupId>org.jjazzlab</groupId>         
     <artifactId>jjazzlab-toolkit</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
+    <version>4.1.0</version>
     <name>jjazzlab-toolkit</name>
     <packaging>jar</packaging>    
 
