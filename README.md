@@ -1,14 +1,14 @@
 # JJazzLab Toolkit
 
-All [JJazzLab](https://github.com/jjazzboss/JJazzLab) core in one jar.
+All [JJazzLab](https://github.com/jjazzboss/JJazzLab) core in one jar, with all dependencies included.
 
 The JJazzLab Toolkit is the "engine" that powers the JJazzLab application: object models and algorithms, without graphical user interface.
 
 For example, you can use it to :
 
 - add automatic backing track generation to your app
-- build a utility which converts in batch mode JJazzLab songs to .mp3 files
-- experiment with backing track generation algorithms
+- experiment a plugin to reharmonize songs
+- make a small utility which converts in batch mode JJazzLab songs to .mp3 files
 - ...
 
 ![JJazzLab Toolkit architecture](https://github.com/jjazzboss/JJazzLab/blob/master/graphics/JJazzLab-Core-blocks.png)
@@ -21,9 +21,9 @@ You can combine this toolkit with JJazzLab [plugins](https://github.com/jjazzbos
 - [FluidSynthEmbeddedSynth](https://github.com/jjazzboss/JJazzLab/tree/master/plugins/YamJJazz): make JJazzLab use [FluidSynth](https://www.fluidsynth.org/) as its output synth
 
 
-## Use the toolkit
+## How to use the toolkit
 
-For sample code how to use the main toolkit features, check out the DemoApp sub-project.
+For sample code how to use the main features, check out the **DemoApp** sub-project.
 
 The JJazzLab Toolkit follows the same versioning than the JJazzLab application: a new version of the toolkit is released when a new version of JJazzLab is released.
 
