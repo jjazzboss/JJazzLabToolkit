@@ -23,7 +23,7 @@ You can combine this toolkit with JJazzLab [plugins](https://github.com/jjazzbos
 
 ## How to use the toolkit
 
-For sample code how to use the main features, check out the **DemoApp** sub-project.
+For sample code how to use the main features, check out the [DemoApp](https://github.com/jjazzboss/JJazzLabToolkit/tree/main/DemoApp) sub-project.
 
 The JJazzLab Toolkit follows the same versioning than the JJazzLab application: a new version of the toolkit is released when a new version of JJazzLab is released.
 
