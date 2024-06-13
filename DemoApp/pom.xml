@@ -29,7 +29,17 @@
                     </compilerArgs>
                 </configuration>       
             </plugin>
+        
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.3.0</version> 
+                <configuration>
+                    <mainClass>org.jjazzlab.toolkitdemo.ToolkitDemoApp</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
+        
     </build>
     
     

@@ -52,9 +52,9 @@ public class ToolkitDemoApp
     }
     private static final Logger LOGGER = Logger.getLogger(ToolkitDemoApp.class.getSimpleName());
 
-    // Change these 2 values to match your system
-    private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "JJazzLab-SoundFont.sf2";        // Or use ""
-    private static String PATH_TO_SNG_FILE = "C:\\Users\\Jerome\\JJazzLab\\Blackbird.sng";  // Or use ""
+    // Change these 2 values if you want to use FluidSynth and/or open a .sng file
+    private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "";        // Path to JJazzLab-SoundFont.sf2
+    private static String PATH_TO_SNG_FILE = "";                      // Path to a .sng file to open
 
 
     public static void main(String[] args)
