@@ -2,13 +2,15 @@
 
 This small Maven project demonstrates how to use the JJazzLab Toolkit.
 
-pom.xml defines a dependency to the JJazzLab Toolkit and to 2 JJazzLab plugins (YamJJazz rhythm engine, FluidSynthEmbeddedSynth).
+`pom.xml` sets dependencies to the JJazzLab Toolkit and 2 JJazzLab [jar plugins](https://github.com/jjazzboss/JJazzLabJarPlugins): 
+- YamJJazz (Yamaha style-based rhythm engine)
+- FluidSynthEmbeddedSynth (use FluidSynth as output synth)
 
-ToolkitDemoApp.java uses a few of the toolkit API: 
+`ToolkitDemoApp.java` uses a subset of the toolkit API: 
 - setup Midi configuration (use FluidSynth if available) 
 - play test notes
 - initialize or load a song
-- modify it
+- modify the song
 - play the song
 - export to Midi
 - export to audio (if FluidSynth is available)

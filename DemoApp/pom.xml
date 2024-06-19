@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jjazzlab</groupId>
     <artifactId>jjazzlab-toolkit-demo</artifactId>
-    <version>4.1.0</version>    
+    <version>4.1.0a</version>    
     <packaging>jar</packaging>
     <name>JJazzLab Toolkit Demo</name>
 
@@ -48,16 +48,16 @@
             <groupId>org.jjazzlab</groupId>
             <artifactId>jjazzlab-toolkit</artifactId>  
             <version>4.1.0</version>
-        </dependency>     
+        </dependency>            
         <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>yamjjazz</artifactId>                       <!-- The JJazzLab Yamaha-file based engine -->
+            <artifactId>yamjjazz-jar</artifactId>  
             <version>4.1.0</version>
-        </dependency>       
+        </dependency>            
         <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>fluidsynthembeddedsynth</artifactId>         <!-- Enable FluidSynth for JJazzLab  -->
+            <artifactId>fluidsynthembeddedsynth-jar</artifactId>  
             <version>4.1.0</version>
-        </dependency>           
+        </dependency>         
     </dependencies>
 </project>

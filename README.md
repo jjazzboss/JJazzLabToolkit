@@ -7,18 +7,11 @@ The JJazzLab Toolkit is the "engine" that powers the JJazzLab application: objec
 For example, you can use it to :
 
 - add automatic backing track generation to your app
-- experiment a plugin to reharmonize songs
-- make a small utility which converts in batch mode JJazzLab songs to .mp3 files
+- experiment a plugin which analyzes chord progressions
+- make a small utility to batch-convert .sng files to .mp3 
 - ...
 
 ![JJazzLab Toolkit architecture](https://github.com/jjazzboss/JJazzLab/blob/master/graphics/JJazzLab-Core-blocks.png)
-
-&nbsp;
-
-You can combine this toolkit with JJazzLab [plugins](https://github.com/jjazzboss/JJazzLab/tree/master/plugins) such as :
-
-- [YamJJazz](https://github.com/jjazzboss/JJazzLab/tree/master/plugins/YamJJazz): backing track generator from Yamaha style files
-- [FluidSynthEmbeddedSynth](https://github.com/jjazzboss/JJazzLab/tree/master/plugins/YamJJazz): make JJazzLab use [FluidSynth](https://www.fluidsynth.org/) as its output synth
 
 
 ## How to use the toolkit
@@ -40,3 +33,15 @@ The JJazzLab Toolkit follows the same versioning than the JJazzLab application: 
 ```
 compile 'org.jjazzlab:jjazzlab-toolkit:4.1.0'
 ```
+
+### Using JJazzLab plugins with the Toolkit
+
+The JJazzLab [jar plugins](https://github.com/jjazzboss/JJazzLabJarPlugins) can be used with this Toolkit. See the DemoApp above for sample code.
+
+## Build
+
+There is usually no need to build the Toolkit yourself since it is available on [Sonatype Maven Central](https://central.sonatype.com). But if you insist:
+ 
+- Clone and build [JJazzLab](https://github.com/jjazzboss/JJazzLab) locally (`mvn clean install`), so that all JJazzLab core modules are available in your local Maven repository (usually `$HOME/.m2`)
+- Clone this repo 
+- Run `mvn clean install`
