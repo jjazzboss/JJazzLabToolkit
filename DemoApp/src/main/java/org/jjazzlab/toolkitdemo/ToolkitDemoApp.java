@@ -45,17 +45,19 @@ import org.openide.util.Exceptions;
 public class ToolkitDemoApp
 {
 
+    // ============================================================================================
+    // These are relative paths from the Maven project directory (the one containing pom.xml)
+    private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "JJazzLab-SoundFont.sf2";  // Required for FluidSynthEmbeddedSynth to work
+    private static String PATH_TO_SNG_FILE = "";            // Try to open this .sng file if not empty, otherwise program will create a song from scratch
+    // =============================================================================================
+
+    
     static
     {
         // Set string format for all Loggers
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s %3$s  %5$s %n");
     }
     private static final Logger LOGGER = Logger.getLogger(ToolkitDemoApp.class.getSimpleName());
-
-    // Change these 2 values if you want to use FluidSynth and/or open a .sng file
-    private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "JJazzLab-SoundFont.sf2";        // Path to JJazzLab-SoundFont.sf2. Relative path points to dir. containing pom.xml
-    private static String PATH_TO_SNG_FILE = "";                      // Path to a .sng file to open
-
 
     public static void main(String[] args)
     {
@@ -112,7 +114,7 @@ public class ToolkitDemoApp
         LOGGER.log(Level.INFO, "Populating the RhythmDatabase...");
         DefaultRhythmDatabase rdb = (DefaultRhythmDatabase) RhythmDatabase.getDefault();
         // This will poll all the RhythmProvider instances available in the global lookup 
-        // NOTE: the org.jjazzlab.plugins-yamjjazz plugin should be in the classpath to get the Yamaha file based "YamJJazz" RhythmProviders (add a dependency in pom.xml)
+        // NOTE: the org.jjazzlab.plugins:yamjjazz-jar plugin should be in the classpath in order to get the Yamaha style-based "YamJJazz" RhythmProviders
         rdb.addRhythmsFromRhythmProviders(false, false, true);
 
 
@@ -261,7 +263,7 @@ public class ToolkitDemoApp
                     fluidSynth.generateWavFile(midiFile, wavFile);        // throws EmbeddedSynthException
                     LOGGER.log(Level.INFO, "Audio (WAV) export to {0} complete !", wavFile.getAbsolutePath());
 
-                    
+
                     // MP3 conversion
                     Mp3Encoder encoder = Mp3EncoderProvider.getDefault();
                     if (encoder != null)
@@ -296,7 +298,7 @@ public class ToolkitDemoApp
     /**
      * Set up the FluidSynthEmbeddedSynth instance.
      * <p>
-     * NOTE: the org.jjazzlab.plugins-fluidsynthembeddedsynth plugin must be in the classpath (add a dependency in pom.xml).
+     * NOTE: the org.jjazzlab.plugins:fluidsynthembeddedsynth-jar plugin must be in the classpath.
      *
      * @param soundfontPath
      * @return The fluidsynth instance if success, null otherwise
