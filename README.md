@@ -36,7 +36,7 @@ compile 'org.jjazzlab:jjazzlab-toolkit:4.1.0'
 
 ### Using JJazzLab plugins with the Toolkit
 
-The JJazzLab [jar plugins](https://github.com/jjazzboss/JJazzLabJarPlugins) can be used with this Toolkit. See the DemoApp above for sample code.
+The JJazzLab [jar plugins](https://github.com/jjazzboss/JJazzLabJarPlugins) can be used with this Toolkit. See the [DemoApp](https://github.com/jjazzboss/JJazzLabToolkit/tree/main/DemoApp) for sample code.
 
 ## Build
 
