@@ -23,21 +23,33 @@
                 <version>${jjazzlab.maven.compiler.plugin.version}</version>                
                 <configuration>
                     <release>${jjazzlab.compiler.release}</release>                    
-                    <enablePreview>true</enablePreview>         <!-- needed for fluidsynthembeddedsynth -->
-                    <compilerArgs>
-                        <arg>--add-modules=jdk.incubator.foreign</arg>     <!-- needed for fluidsynthembeddedsynth -->
-                    </compilerArgs>
                 </configuration>       
             </plugin>
+        
         
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.3.0</version> 
+                <version>3.3.0</version>
                 <configuration>
-                    <mainClass>org.jjazzlab.toolkitdemo.ToolkitDemoApp</mainClass>
+                    <executable>java</executable>
+                    <arguments>
+                        <!-- The 2 lines below automatically create the classpath using all project dependencies, also adding the project build directory -->                        
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>--add-modules=jdk.incubator.foreign</argument>    <!-- required for FluidSynthEmbeddedSynth -->
+                        <argument>--enable-preview</argument>    <!-- required for FluidSynthEmbeddedSynth -->
+                        <argument>--enable-native-access=ALL-UNNAMED</argument>                          
+                        <argument>--add-opens=java.base/java.net=ALL-UNNAMED</argument> 
+                        <argument>--add-opens=java.base/java.lang=ALL-UNNAMED</argument> 
+                        <argument>--add-opens=java.desktop/javax.swing=ALL-UNNAMED</argument>   
+                        <argument>--add-exports=java.desktop/sun.awt=ALL-UNNAMED</argument>   
+                        <argument>--add-opens=java.base/java.util=ALL-UNNAMED</argument>
+                        <argument>org.jjazzlab.toolkitdemo.ToolkitDemoApp</argument>    <!-- program entry point -->
+                    </arguments>
                 </configuration>
             </plugin>
+            
         </plugins>
         
     </build>

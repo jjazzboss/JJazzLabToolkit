@@ -23,7 +23,7 @@ This small Maven project demonstrates how to use the JJazzLab Toolkit.
 
 ### Run
 - For FluidSynth to work you need to download and copy [JJazzLab-SoundFont.sf2](https://musical-artifacts.com/artifacts/1036) to the project root directory (next to `pom.xml`).
-- `mvn exec:java`
+- `mvn exec:exec`
 
 
 Sample program output
