@@ -48,7 +48,7 @@ public class ToolkitDemoApp
     // ============================================================================================
     // These are relative paths from the Maven project directory (the one containing pom.xml)
     private static String PATH_TO_JJAZZLAB_SOUNDFONT_SF2 = "JJazzLab-SoundFont.sf2";  // Required for FluidSynthEmbeddedSynth to work
-    private static String PATH_TO_SNG_FILE = "";            // Try to open this .sng file if not empty, otherwise program will create a song from scratch
+    private static String PATH_TO_SNG_FILE = "Simple.sng";            // Try to open this .sng file if not empty, otherwise program will create a song from scratch
     // =============================================================================================
 
     
@@ -245,6 +245,16 @@ public class ToolkitDemoApp
         s.nextLine();
 
 
+//        File saveFile = new File("testSave.sng");
+//        try
+//        {
+//            song.saveToFile(saveFile, false);
+//        } catch (IOException ex)
+//        {
+//            Exceptions.printStackTrace(ex);
+//        }
+        
+        
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
         LOGGER.info("Exporting song to Midi + Audio files...");
