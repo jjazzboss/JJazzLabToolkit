@@ -18,6 +18,8 @@ For example, you can use it to :
 
 For sample code how to use the main features, check out the [DemoApp](https://github.com/jjazzboss/JJazzLabToolkit/tree/main/DemoApp) sub-project.
 
+You'll need to run your program with Java 17 and some specific JVM command line arguments (e.g. --add-opens), see `DemoApp/pom.xml` for reference.
+
 The JJazzLab Toolkit follows the same versioning than the JJazzLab application: a new version of the toolkit is released when a new version of JJazzLab is released.
 
 ### With Maven

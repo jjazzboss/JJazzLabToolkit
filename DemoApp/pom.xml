@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jjazzlab</groupId>
     <artifactId>jjazzlab-toolkit-demo</artifactId>
-    <version>4.1.1</version>    
+    <version>4.1.2</version>    
     <packaging>jar</packaging>
     <name>JJazzLab Toolkit Demo</name>
 
@@ -37,14 +37,16 @@
                         <!-- The 2 lines below automatically create the classpath using all project dependencies, also adding the project build directory -->                        
                         <argument>-classpath</argument>
                         <classpath/>
+                        
                         <argument>--add-modules=jdk.incubator.foreign</argument>    <!-- required for FluidSynthEmbeddedSynth -->
                         <argument>--enable-preview</argument>    <!-- required for FluidSynthEmbeddedSynth -->
-                        <argument>--enable-native-access=ALL-UNNAMED</argument>                          
-                        <argument>--add-opens=java.base/java.net=ALL-UNNAMED</argument> 
-                        <argument>--add-opens=java.base/java.lang=ALL-UNNAMED</argument> 
-                        <argument>--add-opens=java.desktop/javax.swing=ALL-UNNAMED</argument>   
-                        <argument>--add-exports=java.desktop/sun.awt=ALL-UNNAMED</argument>   
-                        <argument>--add-opens=java.base/java.util=ALL-UNNAMED</argument>
+                        <argument>--enable-native-access=ALL-UNNAMED</argument>         <!-- required for FluidSynthEmbeddedSynth -->                  
+                        <argument>--add-opens=java.base/java.net=ALL-UNNAMED</argument>     <!-- required by Netbeans platform or Xstream --> 
+                        <argument>--add-opens=java.base/java.lang=ALL-UNNAMED</argument>    <!-- required by Netbeans platform or Xstream --> 
+                        <argument>--add-opens=java.desktop/javax.swing=ALL-UNNAMED</argument>   <!-- required by Netbeans platform or Xstream --> 
+                        <argument>--add-opens=java.desktop/java.awt.event=ALL-UNNAMED</argument>   <!-- required by Netbeans platform 22 on MacOS --> 
+                        <argument>--add-exports=java.desktop/sun.awt=ALL-UNNAMED</argument>   <!-- required by Netbeans platform or Xstream --> 
+                        <argument>--add-opens=java.base/java.util=ALL-UNNAMED</argument>    <!-- required by Netbeans platform or Xstream (when absent, it makes Xstream .sng deserialization fail with unrelated error msg) --> 
                         <argument>org.jjazzlab.toolkitdemo.ToolkitDemoApp</argument>    <!-- program entry point -->
                     </arguments>
                 </configuration>
@@ -59,17 +61,17 @@
         <dependency>
             <groupId>org.jjazzlab</groupId>
             <artifactId>jjazzlab-toolkit</artifactId>  
-            <version>4.1.0</version>
+            <version>4.1.2</version>
         </dependency>            
         <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>yamjjazz-jar</artifactId>  
-            <version>4.1.0</version>
+            <artifactId>yamjjazz</artifactId>  
+            <version>4.1.2</version>
         </dependency>            
         <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>fluidsynthembeddedsynth-jar</artifactId>  
-            <version>4.1.0</version>
+            <artifactId>fluidsynthembeddedsynth</artifactId>  
+            <version>4.1.2</version>
         </dependency>         
     </dependencies>
 </project>

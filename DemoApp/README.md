@@ -22,6 +22,7 @@ This small Maven project demonstrates how to use the JJazzLab Toolkit.
 > Java 17 is required because FluidSynthEmbeddedSynth uses Java 17 incubating features.
 
 ### Run
+- Some specific JVM command line arguments are required (eg --add-opens...), see `pom.xml`.
 - For FluidSynth to work you need to download and copy [JJazzLab-SoundFont.sf2](https://musical-artifacts.com/artifacts/1036) to the project root directory (next to `pom.xml`).
 - `mvn exec:exec`
 
