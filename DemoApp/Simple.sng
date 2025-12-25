@@ -88,8 +88,8 @@
     <spSpts>
       <org.jjazz.songstructure.SongPartImpl resolves-to="org.jjazz.songstructure.SongPartImpl$SerializationProxy">
         <spVERSION>1</spVERSION>
-        <spRhythmId>PopRock.STY-ID</spRhythmId>
-        <spRhythmName>PopRock.STY</spRhythmName>
+        <spRhythmId>Cool8Beat.S737.sst-ID</spRhythmId>
+        <spRhythmName>Cool8Beat.S737.sst</spRhythmName>
         <spRhythmTs>FOUR_FOUR</spRhythmTs>
         <spStartBarIndex>0</spStartBarIndex>
         <spName>A</spName>
@@ -149,8 +149,8 @@
       </org.jjazz.songstructure.SongPartImpl>
       <org.jjazz.songstructure.SongPartImpl resolves-to="org.jjazz.songstructure.SongPartImpl$SerializationProxy">
         <spVERSION>1</spVERSION>
-        <spRhythmId>PopRock.STY-ID</spRhythmId>
-        <spRhythmName>PopRock.STY</spRhythmName>
+        <spRhythmId>Cool8Beat.S737.sst-ID</spRhythmId>
+        <spRhythmName>Cool8Beat.S737.sst</spRhythmName>
         <spRhythmTs>FOUR_FOUR</spRhythmTs>
         <spStartBarIndex>4</spStartBarIndex>
         <spName>A</spName>
@@ -210,8 +210,8 @@
       </org.jjazz.songstructure.SongPartImpl>
       <org.jjazz.songstructure.SongPartImpl resolves-to="org.jjazz.songstructure.SongPartImpl$SerializationProxy">
         <spVERSION>1</spVERSION>
-        <spRhythmId>PopRock.STY-ID</spRhythmId>
-        <spRhythmName>PopRock.STY</spRhythmName>
+        <spRhythmId>Cool8Beat.S737.sst-ID</spRhythmId>
+        <spRhythmName>Cool8Beat.S737.sst</spRhythmName>
         <spRhythmTs>FOUR_FOUR</spRhythmTs>
         <spStartBarIndex>8</spStartBarIndex>
         <spName>A</spName>
@@ -271,8 +271,8 @@
       </org.jjazz.songstructure.SongPartImpl>
       <org.jjazz.songstructure.SongPartImpl resolves-to="org.jjazz.songstructure.SongPartImpl$SerializationProxy">
         <spVERSION>1</spVERSION>
-        <spRhythmId>PopRock.STY-ID</spRhythmId>
-        <spRhythmName>PopRock.STY</spRhythmName>
+        <spRhythmId>Cool8Beat.S737.sst-ID</spRhythmId>
+        <spRhythmName>Cool8Beat.S737.sst</spRhythmName>
         <spRhythmTs>FOUR_FOUR</spRhythmTs>
         <spStartBarIndex>12</spStartBarIndex>
         <spName>A</spName>
@@ -332,8 +332,8 @@
       </org.jjazz.songstructure.SongPartImpl>
       <org.jjazz.songstructure.SongPartImpl resolves-to="org.jjazz.songstructure.SongPartImpl$SerializationProxy">
         <spVERSION>1</spVERSION>
-        <spRhythmId>PopRock.STY-ID</spRhythmId>
-        <spRhythmName>PopRock.STY</spRhythmName>
+        <spRhythmId>Cool8Beat.S737.sst-ID</spRhythmId>
+        <spRhythmName>Cool8Beat.S737.sst</spRhythmName>
         <spRhythmTs>FOUR_FOUR</spRhythmTs>
         <spStartBarIndex>16</spStartBarIndex>
         <spName>A</spName>
@@ -393,8 +393,8 @@
       </org.jjazz.songstructure.SongPartImpl>
       <org.jjazz.songstructure.SongPartImpl resolves-to="org.jjazz.songstructure.SongPartImpl$SerializationProxy">
         <spVERSION>1</spVERSION>
-        <spRhythmId>PopRock.STY-ID</spRhythmId>
-        <spRhythmName>PopRock.STY</spRhythmName>
+        <spRhythmId>Cool8Beat.S737.sst-ID</spRhythmId>
+        <spRhythmName>Cool8Beat.S737.sst</spRhythmName>
         <spRhythmTs>FOUR_FOUR</spRhythmTs>
         <spStartBarIndex>20</spStartBarIndex>
         <spName>END</spName>

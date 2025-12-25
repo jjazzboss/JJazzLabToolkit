@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion> 
     <groupId>org.jjazzlab</groupId>         
     <artifactId>jjazzlab-toolkit</artifactId>
-    <version>4.1.2</version>
+    <version>5.0.2-SNAPSHOT</version>
     <name>jjazzlab-toolkit</name>
     <packaging>jar</packaging>    
 
@@ -42,9 +42,9 @@
    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>         
-        <jjazzlab.compiler.release>17</jjazzlab.compiler.release>
+        <jjazzlab.compiler.release>23</jjazzlab.compiler.release>
         <jjazzlab.maven.compiler.plugin.version>3.11.0</jjazzlab.maven.compiler.plugin.version>        
-        <netbeans.version>RELEASE230</netbeans.version>
+        <netbeans.version>RELEASE280</netbeans.version>
     </properties>
     
     

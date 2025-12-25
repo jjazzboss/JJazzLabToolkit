@@ -23,11 +23,12 @@ import org.jjazz.midimix.api.MidiMix;
 import org.jjazz.midimix.spi.MidiMixManager;
 import org.jjazz.musiccontrol.api.MusicController;
 import org.jjazz.musiccontrol.api.SongMidiExporter;
+import org.jjazz.musiccontrol.api.playbacksession.PlaybackSession;
 import org.jjazz.musiccontrol.api.playbacksession.StaticSongSession;
 import org.jjazz.outputsynth.api.OutputSynth;
 import org.jjazz.outputsynth.spi.OutputSynthManager;
 import org.jjazz.rhythm.api.MusicGenerationException;
-import org.jjazz.rhythm.api.rhythmparameters.RP_STD_Variation;
+import org.jjazz.rhythm.api.rhythmparameters.RP_SYS_Variation;
 import org.jjazz.rhythmdatabase.api.DefaultRhythmDatabase;
 import org.jjazz.rhythmdatabase.api.RhythmDatabase;
 import org.jjazz.song.api.Song;
@@ -114,7 +115,7 @@ public class ToolkitDemoApp
         LOGGER.log(Level.INFO, "Populating the RhythmDatabase...");
         DefaultRhythmDatabase rdb = (DefaultRhythmDatabase) RhythmDatabase.getDefault();
         // This will poll all the RhythmProvider instances available in the global lookup 
-        // NOTE: the org.jjazzlab.plugins:yamjjazz-jar plugin should be in the classpath in order to get the Yamaha style-based "YamJJazz" RhythmProviders
+        // NOTE: at least one music engine plugin needs to be in the classpath (e.g. org.jjazzlab.plugins:yamjjazz-jar), otherwise you'll only get dummy rhythms available.
         rdb.addRhythmsFromRhythmProviders(false, false, true);
 
 
@@ -189,7 +190,7 @@ public class ToolkitDemoApp
         }
         // Change the Variation rhythm parameter value of the 2nd song part
         var spt1Rhythm = spt1.getRhythm();
-        var rpVariation = RP_STD_Variation.getVariationRp(spt1Rhythm);
+        var rpVariation = RP_SYS_Variation.getVariationRp(spt1Rhythm);
         if (rpVariation != null)
         {
             String currentValue = spt1.getRPValue(rpVariation);
@@ -197,7 +198,7 @@ public class ToolkitDemoApp
             songStructure.setRhythmParameterValue(spt1, rpVariation, nextValue);
         } else
         {
-            LOGGER.log(Level.WARNING, "Rhythm {0} does not use a RP_STD_VARIATION rhythm parameter", spt1Rhythm.getName());
+            LOGGER.log(Level.WARNING, "Rhythm {0} does not use a RP_SYS_VARIATION rhythm parameter", spt1Rhythm.getName());
         }
         LOGGER.log(Level.INFO, "Song structure changed= {0}", songStructure);
 
@@ -218,8 +219,9 @@ public class ToolkitDemoApp
         // This is important when using a GM synth (drums on channel 10 only), rerouting to Drums channel might be required, especially with Yamaha styles 
         // which often use 2 drums/percussion channels (9 and 10).        
         outputSynth.fixInstruments(midiMix, true);
+         // Configure GM, GM2, XG, GS if required
+        outputSynth.getUserSettings().sendModeOnUponPlaySysexMessages();   
         // Send all Midi messages to configure the connected synth (for each used channel select patch and set volume/pan/chorus/reverb settings)
-        outputSynth.getUserSettings().sendModeOnUponPlaySysexMessages();    // Configure GM, GM2, XG, GS if required
         midiMix.sendAllMidiMixMessages();
         midiMix.sendAllMidiVolumeMessages();
         LOGGER.log(Level.INFO, midiMix.toDumpString());
@@ -232,7 +234,7 @@ public class ToolkitDemoApp
         {
             song.setTempo(120);
             var mc = MusicController.getInstance();
-            var session = StaticSongSession.getSession(new SongContext(song, midiMix));
+            var session = StaticSongSession.getSession(new SongContext(song, midiMix), PlaybackSession.Context.SONG);
             mc.setPlaybackSession(session, false);             // throws MusicGenerationException
             mc.play(0);     // throws MusicGenerationException            
         } catch (MusicGenerationException ex)

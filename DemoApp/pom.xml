@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jjazzlab</groupId>
     <artifactId>jjazzlab-toolkit-demo</artifactId>
-    <version>4.1.2</version>    
+    <version>5.0.2-SNAPSHOT</version>    
     <packaging>jar</packaging>
     <name>JJazzLab Toolkit Demo</name>
 
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>         
-        <jjazzlab.compiler.release>17</jjazzlab.compiler.release>
+        <jjazzlab.compiler.release>23</jjazzlab.compiler.release>
         <jjazzlab.maven.compiler.plugin.version>3.11.0</jjazzlab.maven.compiler.plugin.version>
     </properties>
 
@@ -37,9 +37,6 @@
                         <!-- The 2 lines below automatically create the classpath using all project dependencies, also adding the project build directory -->                        
                         <argument>-classpath</argument>
                         <classpath/>
-                        
-                        <argument>--add-modules=jdk.incubator.foreign</argument>    <!-- required for FluidSynthEmbeddedSynth -->
-                        <argument>--enable-preview</argument>    <!-- required for FluidSynthEmbeddedSynth -->
                         <argument>--enable-native-access=ALL-UNNAMED</argument>         <!-- required for FluidSynthEmbeddedSynth -->                  
                         <argument>--add-opens=java.base/java.net=ALL-UNNAMED</argument>     <!-- required by Netbeans platform or Xstream --> 
                         <argument>--add-opens=java.base/java.lang=ALL-UNNAMED</argument>    <!-- required by Netbeans platform or Xstream --> 
@@ -61,17 +58,22 @@
         <dependency>
             <groupId>org.jjazzlab</groupId>
             <artifactId>jjazzlab-toolkit</artifactId>  
-            <version>4.1.2</version>
+            <version>${project.version}</version>
         </dependency>            
         <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
             <artifactId>yamjjazz</artifactId>  
-            <version>4.1.2</version>
+            <version>${project.version}</version>
+        </dependency>            
+        <dependency>
+            <groupId>org.jjazzlab.plugins</groupId>
+            <artifactId>jjswing</artifactId>  
+            <version>${project.version}</version>
         </dependency>            
         <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
             <artifactId>fluidsynthembeddedsynth</artifactId>  
-            <version>4.1.2</version>
+            <version>${project.version}</version>
         </dependency>         
     </dependencies>
 </project>
