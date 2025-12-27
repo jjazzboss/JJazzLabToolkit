@@ -265,7 +265,6 @@
             <version>${netbeans.version}</version>  
         </dependency>          
         
-        
         <!-- JJazzLab core modules -->  
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 

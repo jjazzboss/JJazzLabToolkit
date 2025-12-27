@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,9 +29,13 @@ import org.jjazz.musiccontrol.api.playbacksession.StaticSongSession;
 import org.jjazz.outputsynth.api.OutputSynth;
 import org.jjazz.outputsynth.spi.OutputSynthManager;
 import org.jjazz.rhythm.api.MusicGenerationException;
+import org.jjazz.rhythm.api.rhythmparameters.RP_SYS_Fill;
 import org.jjazz.rhythm.api.rhythmparameters.RP_SYS_Variation;
+import org.jjazz.rhythm.spi.RhythmDirsLocator;
+
 import org.jjazz.rhythmdatabase.api.DefaultRhythmDatabase;
 import org.jjazz.rhythmdatabase.api.RhythmDatabase;
+import org.jjazz.rhythmdatabase.api.UnavailableRhythmException;
 import org.jjazz.song.api.Song;
 import org.jjazz.song.api.SongCreationException;
 import org.jjazz.song.api.SongFactory;
@@ -41,7 +46,7 @@ import org.jjazz.utilities.api.Utilities;
 import org.openide.util.Exceptions;
 
 /**
- * This demonstrates usage of the JJazzLab toolkit.
+ * This demonstrates how to use some of the main features of the JJazzLab toolkit.
  */
 public class ToolkitDemoApp
 {
@@ -52,7 +57,7 @@ public class ToolkitDemoApp
     private static String PATH_TO_SNG_FILE = "Simple.sng";            // Try to open this .sng file if not empty, otherwise program will create a song from scratch
     // =============================================================================================
 
-    
+
     static
     {
         // Set string format for all Loggers
@@ -74,19 +79,22 @@ public class ToolkitDemoApp
         }
         LOGGER.log(Level.INFO, "Using PATH_TO_JJAZZLAB_SOUNDFONT_SF2={0}", PATH_TO_JJAZZLAB_SOUNDFONT_SF2);
         LOGGER.log(Level.INFO, "Using PATH_TO_SNG_FILE={0}", PATH_TO_SNG_FILE);
+        LOGGER.log(Level.INFO, "Default rhythms dir.={0}", RhythmDirsLocator.getDefault().getDefaultRhythmsDirectory().getAbsolutePath());
+        LOGGER.log(Level.INFO, "User rhythms dir.   ={0}", RhythmDirsLocator.getDefault().getUserRhythmsDirectory().getAbsolutePath());
 
 
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
-        LOGGER.info("Setting builtin software synth...");
+        LOGGER.info("Setting up JJazzLab FluidSynth...");
 
         EmbeddedSynth fluidSynth = activateFluidSynth(PATH_TO_JJAZZLAB_SOUNDFONT_SF2);
         if (fluidSynth != null)
         {
-            LOGGER.info("Using JJazzLab FluidSynth");
+            LOGGER.info("FluidSynth: success");
         } else
         {
-            LOGGER.info("Using builtin Java synth as sound device (LOW QUALITY!)");
+            LOGGER.info("FluidSynth: failed");
+            LOGGER.warning("Falling back to default Java synth ===========>  !! THIS IS A LOW-QUALITY SYNTH !! <==============");
             var jms = JJazzMidiSystem.getInstance();
             try
             {
@@ -116,7 +124,7 @@ public class ToolkitDemoApp
         DefaultRhythmDatabase rdb = (DefaultRhythmDatabase) RhythmDatabase.getDefault();
         // This will poll all the RhythmProvider instances available in the global lookup 
         // NOTE: at least one music engine plugin needs to be in the classpath (e.g. org.jjazzlab.plugins:yamjjazz-jar), otherwise you'll only get dummy rhythms available.
-        rdb.addRhythmsFromRhythmProviders(false, false, true);
+        rdb.addRhythmsFromRhythmProviders(false, false, false);
 
 
         // =============================================================================================
@@ -141,7 +149,7 @@ public class ToolkitDemoApp
         {
             LOGGER.info("-------------------------------------------------------");
             LOGGER.info("Creating a new song...");
-            // 12 bars with just an initial "A" Section in 4/4 and its corresponding SongPart
+            // 12 bars with just an initial "A" Section in 4/4 and its corresponding SongPart using the default 4/4 rhythm
             song = SongFactory.getInstance().createEmptySong("Simple blues in F", 12, "A", TimeSignature.FOUR_FOUR, null);
             chordLeadsheet = song.getChordLeadSheet();
             songStructure = song.getSongStructure();
@@ -158,6 +166,34 @@ public class ToolkitDemoApp
             {
                 exitWithError(ex);
             }
+
+
+            var spt0 = songStructure.getSongPart(0);
+
+            // Try to use Cool8Beat.S737.sst rhythm
+            var rhythm = spt0.getRhythm();
+            try
+            {
+                rhythm = rdb.getRhythmInstance("Cool8Beat.S737.sst-ID");    // throws UnavailableRhythmException
+                var newSpt0 = spt0.clone(rhythm, spt0.getStartBarIndex(), spt0.getNbBars(), spt0.getParentSection());   
+                songStructure.replaceSongParts(List.of(spt0), List.of(newSpt0));    // throws UnsupportedEditException
+                spt0 = newSpt0;
+            } catch (UnavailableRhythmException ex)
+            {
+                LOGGER.warning(ex.getMessage());
+            } catch (UnsupportedEditException ex)
+            {
+                // Should never happen
+                Exceptions.printStackTrace(ex);
+            }
+
+            // Set Fill parameter to "always" (if default rhythm supports it)
+            var rpFill = RP_SYS_Fill.getFillRp(rhythm);
+            if (rpFill != null)
+            {
+                songStructure.setRhythmParameterValue(spt0, rpFill, RP_SYS_Fill.VALUE_ALWAYS);
+            }
+            
 
             // Or simpler, use the TextReader song importer:
 //            TextReader tr = new TextReader(
@@ -183,7 +219,7 @@ public class ToolkitDemoApp
         var spt1 = spt0.clone(null, spt0Size, spt0Size, spt0.getParentSection());  // Create a SongPart copy which starts right after spt0
         try
         {
-            songStructure.addSongParts(Arrays.asList(spt1));   // Song now contains 2 identical song parts, song size is 24 bars
+            songStructure.addSongParts(List.of(spt1));   // Song now contains 2 identical song parts, song size is 24 bars
         } catch (UnsupportedEditException ex)
         {
             exitWithError(ex);
@@ -219,8 +255,8 @@ public class ToolkitDemoApp
         // This is important when using a GM synth (drums on channel 10 only), rerouting to Drums channel might be required, especially with Yamaha styles 
         // which often use 2 drums/percussion channels (9 and 10).        
         outputSynth.fixInstruments(midiMix, true);
-         // Configure GM, GM2, XG, GS if required
-        outputSynth.getUserSettings().sendModeOnUponPlaySysexMessages();   
+        // Configure GM, GM2, XG, GS if required
+        outputSynth.getUserSettings().sendModeOnUponPlaySysexMessages();
         // Send all Midi messages to configure the connected synth (for each used channel select patch and set volume/pan/chorus/reverb settings)
         midiMix.sendAllMidiMixMessages();
         midiMix.sendAllMidiVolumeMessages();
@@ -255,8 +291,6 @@ public class ToolkitDemoApp
 //        {
 //            Exceptions.printStackTrace(ex);
 //        }
-        
-        
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
         LOGGER.info("Exporting song to Midi + Audio files...");
@@ -310,7 +344,8 @@ public class ToolkitDemoApp
     /**
      * Set up the FluidSynthEmbeddedSynth instance.
      * <p>
-     * NOTE: the org.jjazzlab.plugins:fluidsynthembeddedsynth-jar plugin must be in the classpath.
+     * NOTE: the org.jjazzlab.plugins:fluidsynthembeddedsynth-jar plugin must be in the classpath. On Linux/MacOS, FluidSynth must also be present on your
+     * system.
      *
      * @param soundfontPath
      * @return The fluidsynth instance if success, null otherwise

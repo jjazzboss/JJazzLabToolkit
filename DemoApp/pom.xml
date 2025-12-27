@@ -37,13 +37,7 @@
                         <!-- The 2 lines below automatically create the classpath using all project dependencies, also adding the project build directory -->                        
                         <argument>-classpath</argument>
                         <classpath/>
-                        <argument>--enable-native-access=ALL-UNNAMED</argument>         <!-- required for FluidSynthEmbeddedSynth -->                  
-                        <argument>--add-opens=java.base/java.net=ALL-UNNAMED</argument>     <!-- required by Netbeans platform or Xstream --> 
-                        <argument>--add-opens=java.base/java.lang=ALL-UNNAMED</argument>    <!-- required by Netbeans platform or Xstream --> 
-                        <argument>--add-opens=java.desktop/javax.swing=ALL-UNNAMED</argument>   <!-- required by Netbeans platform or Xstream --> 
-                        <argument>--add-opens=java.desktop/java.awt.event=ALL-UNNAMED</argument>   <!-- required by Netbeans platform 22 on MacOS --> 
-                        <argument>--add-exports=java.desktop/sun.awt=ALL-UNNAMED</argument>   <!-- required by Netbeans platform or Xstream --> 
-                        <argument>--add-opens=java.base/java.util=ALL-UNNAMED</argument>    <!-- required by Netbeans platform or Xstream (when absent, it makes Xstream .sng deserialization fail with unrelated error msg) --> 
+                        <argument>--enable-native-access=ALL-UNNAMED</argument>        <!--  required by FluidSynthEmbeddedSynth -->                  
                         <argument>org.jjazzlab.toolkitdemo.ToolkitDemoApp</argument>    <!-- program entry point -->
                     </arguments>
                 </configuration>
@@ -62,17 +56,17 @@
         </dependency>            
         <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>yamjjazz</artifactId>  
+            <artifactId>yamjjazz</artifactId>       <!-- provides the Yamaha-style based rhythms -->
             <version>${project.version}</version>
         </dependency>            
-        <dependency>
+<!--        <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>jjswing</artifactId>  
+            <artifactId>jjswing</artifactId>         provides the jjSwing rhythm 
             <version>${project.version}</version>
-        </dependency>            
+        </dependency>           -->
         <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>fluidsynthembeddedsynth</artifactId>  
+            <artifactId>fluidsynthembeddedsynth</artifactId>    <!-- FluidSynth bridge+Windows instance optimized for JJazzLab (Linux/MacOs: FluidSynth must be present on your system) -->
             <version>${project.version}</version>
         </dependency>         
     </dependencies>

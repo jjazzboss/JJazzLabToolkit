@@ -7,7 +7,7 @@ The JJazzLab Toolkit is the "engine" that powers the JJazzLab application: objec
 For example, you can use it to :
 
 - add automatic backing track generation to your app
-- experiment a plugin which analyzes chord progressions
+- try developing a new backing track generation plugin
 - make a small utility to batch-convert .sng files to .mp3 
 - ...
 
@@ -16,29 +16,26 @@ For example, you can use it to :
 
 ## How to use the toolkit
 
-For sample code how to use the main features, check out the [DemoApp](https://github.com/jjazzboss/JJazzLabToolkit/tree/main/DemoApp) sub-project.
+The JJazzLab Toolkit requires **java 23 or later**.
 
-You'll need to run your program with Java 17 and some specific JVM command line arguments (e.g. --add-opens), see `DemoApp/pom.xml` for reference.
+For sample code how to use the main JJazzLab features, check out the [DemoApp](https://github.com/jjazzboss/JJazzLabToolkit/tree/main/DemoApp) sub-project.
 
 The JJazzLab Toolkit follows the same versioning than the JJazzLab application: a new version of the toolkit is released when a new version of JJazzLab is released.
+
 
 ### With Maven
 ```
 <dependency>
     <groupId>org.jjazzlab</groupId>
     <artifactId>jjazzlab-toolkit</artifactId>
-    <version>4.1.2</version>
+    <version>5.0.2</version>
 </dependency>
 ```
 
 ### With Gradle
 ```
-compile 'org.jjazzlab:jjazzlab-toolkit:4.1.2'
+compile 'org.jjazzlab:jjazzlab-toolkit:5.0.2'
 ```
-
-### Using JJazzLab plugins with the Toolkit
-
-The JJazzLab [jar plugins](https://github.com/jjazzboss/JJazzLabJarPlugins) can be used with this Toolkit. See the [DemoApp](https://github.com/jjazzboss/JJazzLabToolkit/tree/main/DemoApp) for sample code.
 
 ## Build
 
