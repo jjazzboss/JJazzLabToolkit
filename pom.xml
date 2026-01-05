@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion> 
     <groupId>org.jjazzlab</groupId>         
     <artifactId>jjazzlab-toolkit</artifactId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.1</version>
     <name>jjazzlab-toolkit</name>
     <packaging>jar</packaging>    
 
@@ -268,6 +268,11 @@
         <!-- JJazzLab core modules -->  
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>chordleadsheet</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
             <artifactId>embeddedsynth</artifactId> 
             <version>${project.version}</version> 
         </dependency>      
@@ -346,6 +351,11 @@
             <artifactId>rhythmstubs</artifactId> 
             <version>${project.version}</version> 
         </dependency>     
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>rhythmtestmocks</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>           
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
             <artifactId>song</artifactId> 

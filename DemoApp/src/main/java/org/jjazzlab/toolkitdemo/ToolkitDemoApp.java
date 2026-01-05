@@ -175,7 +175,7 @@ public class ToolkitDemoApp
             try
             {
                 rhythm = rdb.getRhythmInstance("Cool8Beat.S737.sst-ID");    // throws UnavailableRhythmException
-                var newSpt0 = spt0.clone(rhythm, spt0.getStartBarIndex(), spt0.getNbBars(), spt0.getParentSection());   
+                var newSpt0 = spt0.getCopy(rhythm, spt0.getStartBarIndex(), spt0.getNbBars(), spt0.getParentSection());   
                 songStructure.replaceSongParts(List.of(spt0), List.of(newSpt0));    // throws UnsupportedEditException
                 spt0 = newSpt0;
             } catch (UnavailableRhythmException ex)
@@ -216,7 +216,7 @@ public class ToolkitDemoApp
         // Duplicate the initial SongPart
         var spt0 = songStructure.getSongPart(0);
         int spt0Size = spt0.getNbBars();        // =12
-        var spt1 = spt0.clone(null, spt0Size, spt0Size, spt0.getParentSection());  // Create a SongPart copy which starts right after spt0
+        var spt1 = spt0.getCopy(null, spt0Size, spt0Size, spt0.getParentSection());  // Create a SongPart copy which starts right after spt0
         try
         {
             songStructure.addSongParts(List.of(spt1));   // Song now contains 2 identical song parts, song size is 24 bars

@@ -28,13 +28,13 @@ The JJazzLab Toolkit follows the same versioning than the JJazzLab application: 
 <dependency>
     <groupId>org.jjazzlab</groupId>
     <artifactId>jjazzlab-toolkit</artifactId>
-    <version>5.0.2</version>
+    <version>5.1</version>
 </dependency>
 ```
 
 ### With Gradle
 ```
-compile 'org.jjazzlab:jjazzlab-toolkit:5.0.2'
+compile 'org.jjazzlab:jjazzlab-toolkit:5.1'
 ```
 
 ## Build
