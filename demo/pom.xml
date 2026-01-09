@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.jjazzlab</groupId>
+    <groupId>org.jjazzlab.toolkit</groupId>
     <artifactId>jjazzlab-toolkit-demo</artifactId>
     <version>5.1</version>    
     <packaging>jar</packaging>
@@ -50,13 +50,13 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.jjazzlab</groupId>
+            <groupId>org.jjazzlab.toolkit</groupId>
             <artifactId>jjazzlab-toolkit</artifactId>  
             <version>${project.version}</version>
         </dependency>            
         <dependency>
-            <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>yamjjazz</artifactId>       <!-- provides the Yamaha-style based rhythms -->
+            <groupId>org.jjazzlab.toolkit</groupId>
+            <artifactId>yamjjazz-plugin</artifactId>        
             <version>${project.version}</version>
         </dependency>            
 <!--        <dependency>
@@ -64,10 +64,10 @@
             <artifactId>jjswing</artifactId>         provides the jjSwing rhythm 
             <version>${project.version}</version>
         </dependency>           -->
-        <dependency>
+<!--        <dependency>
             <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>fluidsynthembeddedsynth</artifactId>    <!-- FluidSynth bridge+Windows instance optimized for JJazzLab (Linux/MacOs: FluidSynth must be present on your system) -->
+            <artifactId>fluidsynthembeddedsynth</artifactId>     FluidSynth bridge+Windows instance optimized for JJazzLab (Linux/MacOs: FluidSynth must be present on your system) 
             <version>${project.version}</version>
-        </dependency>         
+        </dependency>         -->
     </dependencies>
 </project>

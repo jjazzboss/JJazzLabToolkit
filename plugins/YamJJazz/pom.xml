@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion> 
+    <parent>
+        <groupId>org.jjazzlab.toolkit</groupId>
+        <artifactId>jjazzlab-toolkit-build</artifactId>
+        <version>5.1</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    
+    <groupId>org.jjazzlab.toolkit</groupId>         
+    <artifactId>yamjjazz-plugin</artifactId>
+    <name>YamJJazz Toolkit Plugin</name>
+    <packaging>jar</packaging>    
+    <properties>
+        <plugin.id>yamjjazz</plugin.id>
+    </properties>
+
+    <description>Builds a jar with classes from the original plugin but only depending on the JJazzLab toolkit.</description>
+
+    <build>
+        <plugins>              
+            
+            <!-- Copy the plugin classes to this subproject -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>unpack-plugin-classes</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.jjazzlab.plugins</groupId>
+                                    <artifactId>${plugin.id}</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>                                                                
+            </plugin>            
+            
+            <!-- Remove outdated or unnecessary Maven metadata from original plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <excludes>
+                        <!-- Exclude the META-INF/maven files from the original artifact -->
+                        <exclude>META-INF/maven/org.jjazzlab.plugins/${plugin.id}/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            
+            <!-- Attach the original -sources.jar and -javadoc.jar -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Attach original source JAR -->
+                            <artifacts>
+                                <artifact>
+                                    <file>${basedir}/../../JJazzLab/plugins/${plugin.id}/target/${plugin.id}-1.0-sources.jar</file>
+                                    <type>java-source</type>
+                                    <classifier>sources</classifier>
+                                </artifact>
+                                <!-- Attach original Javadoc JAR -->
+                                <artifact>
+                                    <file>${basedir}/../pluginA/target/pluginA-1.0-javadoc.jar</file>
+                                    <type>javadoc</type>
+                                    <classifier>javadoc</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>            
+            
+            <!-- GPG Signed Components -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <executable>c:/Program Files (x86)/GnuPG/bin/gpg.exe</executable>       
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <tokenAuth>true</tokenAuth>
+                    <skipPublishing>true</skipPublishing>
+                </configuration>
+            </plugin>
+                
+        </plugins>
+    </build>
+     
+    
+    <dependencies>
+        <dependency> 
+            <groupId>org.jjazzlab</groupId> 
+            <artifactId>jjazzlab-toolkit</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+    </dependencies>
+    
+    
+</project>

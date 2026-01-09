@@ -18,7 +18,7 @@ For example, you can use it to :
 
 The JJazzLab Toolkit requires **java 23 or later**.
 
-For sample code how to use the main JJazzLab features, check out the [DemoApp](https://github.com/jjazzboss/JJazzLabToolkit/tree/main/DemoApp) sub-project.
+For sample code how to use the main JJazzLab features, check out the [demo](https://github.com/jjazzboss/JJazzLabToolkit/tree/main/demo) sub-project.
 
 The JJazzLab Toolkit follows the same versioning than the JJazzLab application: a new version of the toolkit is released when a new version of JJazzLab is released.
 

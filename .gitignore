@@ -3,3 +3,6 @@
 *.sf2
 dependency-reduced-pom.xml
 
+/demo/target/
+/toolkit/target/
+/plugins/YamJJazz/target/
