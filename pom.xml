@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion> 
+    <modelVersion>4.0.0</modelVersion>     
     <groupId>org.jjazzlab.toolkit</groupId>         
-    <artifactId>jjazzlab-toolkit-build</artifactId>
+    <artifactId>jjazzlab-toolkit</artifactId>
     <version>5.1</version>
-    <name>JJazzLab Toolkit Build</name>
-    <packaging>pom</packaging>    
+    <name>JJazzLab Toolkit</name>
+    <packaging>jar</packaging>    
 
 
     <!-- project meta-data  -->
@@ -38,17 +38,131 @@
         <connection>scm:git:git://github.com/jjazzboss/JJazzLabToolkit.git</connection>
         <developerConnection>scm:git:git@github.com:jjazzboss/JJazzLabToolkit.git</developerConnection>
         <url>https://github.com/jjazzboss/JJazzLabToolkit</url>
-    </scm>          
-   
+    </scm>  
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>         
         <jjazzlab.compiler.release>23</jjazzlab.compiler.release>
         <jjazzlab.maven.compiler.plugin.version>3.11.0</jjazzlab.maven.compiler.plugin.version>        
         <netbeans.version>RELEASE280</netbeans.version>
     </properties>
-    
-    
+
+
     <build>
+                       
+        <plugins>              
+            
+            <!-- Assembler to produce uber-jars for binaries and source code -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-jar-with-dependencies-and-sources-jar</id>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createSourcesJar>true</createSourcesJar>
+                            <transformers>
+                                <!-- Make sure to have all the META-INF/services files merged -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            
+            <!-- Produce the final -javadoc.jar file from core dependencies -javadoc.jar files -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-javadoc-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>          
+                        <configuration>
+                            <sourceFileIncludes>
+                                <include>org/jjazz/**/api/**/*.java</include>
+                                <include>org/jjazz/**/spi/**/*.java</include>
+                            </sourceFileIncludes>      
+                            <locale>en</locale>                                                  
+                            <show>public</show>
+                            <nohelp>false</nohelp>
+                            <detectLinks>false</detectLinks>
+                            <detectOfflineLinks>true</detectOfflineLinks>   
+                            <quiet>false</quiet>
+                            <doclint>none</doclint>
+                            <release>${jjazzlab.compiler.release}</release>   
+                            <doctitle>JJazzLab Core Toolkit ${project.version} API Index</doctitle>
+                            <includeDependencySources>true</includeDependencySources>       <!-- collect all direct dependencies' javadoc -->                                         
+                        </configuration>                                    
+                    </execution>
+                </executions>                                                            
+            </plugin>                      
+                
+            <!-- GPG Signed Components -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <executable>c:/Program Files (x86)/GnuPG/bin/gpg.exe</executable>       
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <skipPublishing>true</skipPublishing>   <!-- works OK until 0.8.0 -->
+                </configuration>
+            </plugin>
+                
+            <!-- Make sure we don't embed JJazzLab application dependencies -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-banned-dependencies</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <searchTransitive>true</searchTransitive>
+                                    <excludes>
+                                        <exclude>org.jjazzlab.app</exclude>
+                                    </excludes>   
+                                    <message>Found JJazzLab application modules in dependencies</message> 
+                                </bannedDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>                
+   
+        </plugins>
+        
+        
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -62,12 +176,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.5.3</version>
+                    <version>3.6.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.6.3</version>
+                    <version>3.12.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -77,39 +191,264 @@
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
-                    <version>0.4.0</version>        
+                    <!-- 0.9.0 problem, skipPublishing=true skips all files generation! But if set to false with autoPublish=false, still tries to upload! -->
+                    <version>0.8.0</version>        
                 </plugin>        
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.4.1</version>                                
+                    <version>3.5.0</version>                                
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.9.0</version>
                 </plugin>           
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.1.4</version>
                 </plugin>   
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>3.2.4</version>
+                    <version>3.2.8</version>
                 </plugin>                
             </plugins>
-        </pluginManagement>        
-              
+        </pluginManagement>
+        
+        
     </build>
-          
-    <modules>
-        <module>toolkit</module>
-        <module>plugins/YamJJazz</module>
-        <!--<module>plugins/JJSwing</module>-->
-        <!--<module>plugins/FluidSynthEmbeddedSynth</module>-->        
-        <!--<module>demo</module>-->
-    </modules>
+    
+    <profiles>
+        
+        <profile>
+            <!-- Activate using "mvn -Dexclude.plugins=true clean install" -->  
+            <id>exclude-plugins</id>
+            <activation>
+                <property>
+                    <name>exclude.plugins</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency> 
+                    <groupId>org.jjazzlab.plugins</groupId> 
+                    <artifactId>yamjjazz</artifactId> 
+                    <version>${project.version}</version> 
+                    <scope>provided</scope>
+                </dependency>     
+                <dependency> 
+                    <groupId>org.jjazzlab.plugins</groupId> 
+                    <artifactId>jjswing</artifactId> 
+                    <version>${project.version}</version> 
+                    <scope>provided</scope>
+                </dependency>   
+                <dependency> 
+                    <groupId>org.jjazzlab.plugins</groupId> 
+                    <artifactId>fluidsynthembeddedsynth</artifactId> 
+                    <version>${project.version}</version> 
+                    <scope>provided</scope>
+                </dependency>                                          
+            </dependencies>
+        </profile>
+        
+        <profile>
+            <id>CompileOnly</id>
+            <build>
+                <plugins>              
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>         
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>                                 
+                </plugins>
+            </build>
+        </profile>
+        
+      
+        
+    </profiles>
+    
+    <dependencies>
+        
+        <!-- Netbeans Platform direct dependencies -->
+        <dependency> 
+            <groupId>org.netbeans.api</groupId> 
+            <artifactId>org-openide-dialogs</artifactId> <!-- needed to provide a simplified DialogDisplayer instance -->
+            <version>${netbeans.version}</version>  
+        </dependency>  
+        <dependency> 
+            <groupId>org.netbeans.api</groupId> 
+            <artifactId>org-openide-awt</artifactId> <!-- needed to provide a simplified StatusDisplayer instance -->
+            <version>${netbeans.version}</version>  
+        </dependency>          
+        
+        <!-- JJazzLab core modules -->  
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>chordleadsheet</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>embeddedsynth</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>      
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>guava</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>harmony</artifactId> 
+            <version>${project.version}</version> 
+        </dependency> 
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>importers</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>      
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>flatcomponents</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>            
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>midi</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>    
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>midimix</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>musiccontrol</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>       
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>outputsynth</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>     
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>phrase</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>      
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>phrasetransform</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>     
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>quantizer</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>     
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>rhythm</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>rhythmdatabase</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>         
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>rhythmmusicgeneration</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>rhythmstubs</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>     
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>rhythmtestmocks</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>           
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>song</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>                
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>songcontext</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>       
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>songstructure</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>         
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>testplayerservice</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>         
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>uiutilities</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>          
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>undomanager</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>     
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>utilities</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>xstream</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>          
+        
+        <!-- JJazzLab plugins. -->
+        <!-- Can be removed using "mvn -Dexclude.plugins=true clean install" -->  
+        <dependency> 
+            <groupId>org.jjazzlab.plugins</groupId> 
+            <artifactId>yamjjazz</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>     
+        <dependency> 
+            <groupId>org.jjazzlab.plugins</groupId> 
+            <artifactId>jjswing</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+        <dependency> 
+            <groupId>org.jjazzlab.plugins</groupId> 
+            <artifactId>fluidsynthembeddedsynth</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>                                                                                                              
+    </dependencies>
   
 </project>

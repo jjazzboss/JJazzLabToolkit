@@ -54,20 +54,5 @@
             <artifactId>jjazzlab-toolkit</artifactId>  
             <version>${project.version}</version>
         </dependency>            
-        <dependency>
-            <groupId>org.jjazzlab.toolkit</groupId>
-            <artifactId>yamjjazz-plugin</artifactId>        
-            <version>${project.version}</version>
-        </dependency>            
-<!--        <dependency>
-            <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>jjswing</artifactId>         provides the jjSwing rhythm 
-            <version>${project.version}</version>
-        </dependency>           -->
-<!--        <dependency>
-            <groupId>org.jjazzlab.plugins</groupId>
-            <artifactId>fluidsynthembeddedsynth</artifactId>     FluidSynth bridge+Windows instance optimized for JJazzLab (Linux/MacOs: FluidSynth must be present on your system) 
-            <version>${project.version}</version>
-        </dependency>         -->
     </dependencies>
 </project>
