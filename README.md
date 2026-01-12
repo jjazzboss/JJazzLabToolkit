@@ -1,6 +1,6 @@
 # JJazzLab Toolkit
 
-All [JJazzLab](https://github.com/jjazzboss/JJazzLab) core in one jar, with all dependencies included.
+All [JJazzLab](https://github.com/jjazzboss/JJazzLab) core and plugins in one jar, with all dependencies included.
 
 The JJazzLab Toolkit is the "engine" that powers the JJazzLab application: object models and algorithms, without graphical user interface. It 
 also embeds the JJazzLab plugins for music generation and FluidSynth-based audio.

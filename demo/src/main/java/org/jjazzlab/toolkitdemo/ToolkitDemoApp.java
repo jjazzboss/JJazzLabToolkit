@@ -123,7 +123,6 @@ public class ToolkitDemoApp
         LOGGER.log(Level.INFO, "Populating the RhythmDatabase...");
         DefaultRhythmDatabase rdb = (DefaultRhythmDatabase) RhythmDatabase.getDefault();
         // This will poll all the RhythmProvider instances available in the global lookup 
-        // NOTE: at least one music engine plugin needs to be in the classpath (e.g. org.jjazzlab.plugins:yamjjazz-jar), otherwise you'll only get dummy rhythms available.
         rdb.addRhythmsFromRhythmProviders(false, false, false);
 
 
@@ -344,8 +343,7 @@ public class ToolkitDemoApp
     /**
      * Set up the FluidSynthEmbeddedSynth instance.
      * <p>
-     * NOTE: the org.jjazzlab.plugins:fluidsynthembeddedsynth-jar plugin must be in the classpath. On Linux/MacOS, FluidSynth must also be present on your
-     * system.
+     * NOTE: on Linux/MacOS, FluidSynth must already be present on your system.
      *
      * @param soundfontPath
      * @return The fluidsynth instance if success, null otherwise
