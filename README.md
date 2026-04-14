@@ -24,6 +24,8 @@ For sample code how to use the main JJazzLab features, check out the [demo](http
 
 The JJazzLab Toolkit follows the same versioning than the JJazzLab application: a new version of the toolkit is released when a new version of JJazzLab is released.
 
+**IDE note:** `jjazzlab-toolkit` is intentionally published as a single shaded jar. This keeps usage simple, but some IDE features for dependency classes 
+(such as javadoc display and source code access) may be unavailable.
 
 ### With Maven
 ```
