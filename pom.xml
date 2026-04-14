@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>     
     <groupId>org.jjazzlab.toolkit</groupId>         
     <artifactId>jjazzlab-toolkit</artifactId>
-    <version>5.1</version>
+    <version>5.2.1</version>
     <name>JJazzLab Toolkit</name>
     <packaging>jar</packaging>    
 
@@ -42,9 +42,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>         
-        <jjazzlab.compiler.release>23</jjazzlab.compiler.release>
-        <jjazzlab.maven.compiler.plugin.version>3.11.0</jjazzlab.maven.compiler.plugin.version>        
-        <netbeans.version>RELEASE280</netbeans.version>
+        <jjazzlab.compiler.release>25</jjazzlab.compiler.release>
+        <jjazzlab.maven.compiler.plugin.version>3.13.0</jjazzlab.maven.compiler.plugin.version>        
+        <netbeans.version>RELEASE290</netbeans.version>
     </properties>
 
 
@@ -105,7 +105,7 @@
                     </execution>
                 </executions>                                                            
             </plugin>                      
-                
+             
             <!-- GPG Signed Components -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -176,7 +176,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.6.1</version>
+                    <version>3.6.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -300,12 +300,39 @@
             <version>${netbeans.version}</version>  
         </dependency>          
         
+        
         <!-- JJazzLab core modules -->  
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>chordleadsheet</artifactId> 
+            <artifactId>harmony</artifactId> 
             <version>${project.version}</version> 
-        </dependency>   
+        </dependency>  
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>song</artifactId> 
+            <version>${project.version}</version> 
+        </dependency> 
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>songimpl</artifactId> 
+            <version>${project.version}</version> 
+        </dependency> 
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>phrase</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>          
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>rhythm</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>           
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>midi</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>          
+        <!-- JJazzLab model modules -->          
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
             <artifactId>embeddedsynth</artifactId> 
@@ -318,11 +345,6 @@
         </dependency>   
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>harmony</artifactId> 
-            <version>${project.version}</version> 
-        </dependency> 
-        <dependency> 
-            <groupId>org.jjazzlab.core</groupId> 
             <artifactId>importers</artifactId> 
             <version>${project.version}</version> 
         </dependency>      
@@ -331,16 +353,6 @@
             <artifactId>flatcomponents</artifactId> 
             <version>${project.version}</version> 
         </dependency>            
-        <dependency> 
-            <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>midi</artifactId> 
-            <version>${project.version}</version> 
-        </dependency>    
-        <dependency> 
-            <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>midimix</artifactId> 
-            <version>${project.version}</version> 
-        </dependency>   
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
             <artifactId>musiccontrol</artifactId> 
@@ -353,9 +365,9 @@
         </dependency>     
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>phrase</artifactId> 
+            <artifactId>humanizer</artifactId> 
             <version>${project.version}</version> 
-        </dependency>      
+        </dependency>     
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
             <artifactId>phrasetransform</artifactId> 
@@ -368,7 +380,7 @@
         </dependency>     
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>rhythm</artifactId> 
+            <artifactId>rhythmparametersimpl</artifactId> 
             <version>${project.version}</version> 
         </dependency>   
         <dependency> 
@@ -383,29 +395,14 @@
         </dependency>   
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
+            <artifactId>rhythmmusicgenerationSPI</artifactId> 
+            <version>${project.version}</version> 
+        </dependency>   
+        <dependency> 
+            <groupId>org.jjazzlab.core</groupId> 
             <artifactId>rhythmstubs</artifactId> 
             <version>${project.version}</version> 
         </dependency>     
-        <dependency> 
-            <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>rhythmtestmocks</artifactId> 
-            <version>${project.version}</version> 
-        </dependency>           
-        <dependency> 
-            <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>song</artifactId> 
-            <version>${project.version}</version> 
-        </dependency>                
-        <dependency> 
-            <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>songcontext</artifactId> 
-            <version>${project.version}</version> 
-        </dependency>       
-        <dependency> 
-            <groupId>org.jjazzlab.core</groupId> 
-            <artifactId>songstructure</artifactId> 
-            <version>${project.version}</version> 
-        </dependency>         
         <dependency> 
             <groupId>org.jjazzlab.core</groupId> 
             <artifactId>testplayerservice</artifactId> 

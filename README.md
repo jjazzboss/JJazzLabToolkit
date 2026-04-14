@@ -18,7 +18,7 @@ For example, you can use the toolkit to :
 
 ## How to use the toolkit
 
-The JJazzLab Toolkit requires **java 23 or later**.
+The JJazzLab Toolkit requires **java 25 or later**.
 
 For sample code how to use the main JJazzLab features, check out the [demo](https://github.com/jjazzboss/JJazzLabToolkit/tree/main/demo) sub-project.
 
@@ -30,13 +30,13 @@ The JJazzLab Toolkit follows the same versioning than the JJazzLab application: 
 <dependency>
     <groupId>org.jjazzlab.toolkit</groupId>
     <artifactId>jjazzlab-toolkit</artifactId>
-    <version>5.1</version>
+    <version>5.2.1</version>
 </dependency>
 ```
 
 ### With Gradle
 ```
-compile 'org.jjazzlab.toolkit:jjazzlab-toolkit:5.1'
+compile 'org.jjazzlab.toolkit:jjazzlab-toolkit:5.2.1'
 ```
 
 ## Build

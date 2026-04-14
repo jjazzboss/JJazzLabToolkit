@@ -4,15 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.midi.MidiUnavailableException;
 import org.jjazz.chordleadsheet.api.ChordLeadSheet;
 import org.jjazz.chordleadsheet.api.UnsupportedEditException;
-import org.jjazz.chordleadsheet.api.item.CLI_Factory;
+import org.jjazz.chordleadsheet.spi.item.CLI_Factory;
 import org.jjazz.embeddedsynth.api.EmbeddedSynth;
 import org.jjazz.embeddedsynth.api.EmbeddedSynthException;
 import org.jjazz.embeddedsynth.api.Mp3Encoder;
@@ -29,21 +30,23 @@ import org.jjazz.musiccontrol.api.playbacksession.StaticSongSession;
 import org.jjazz.outputsynth.api.OutputSynth;
 import org.jjazz.outputsynth.spi.OutputSynthManager;
 import org.jjazz.rhythm.api.MusicGenerationException;
-import org.jjazz.rhythm.api.rhythmparameters.RP_SYS_Fill;
-import org.jjazz.rhythm.api.rhythmparameters.RP_SYS_Variation;
 import org.jjazz.rhythm.spi.RhythmDirsLocator;
-
-import org.jjazz.rhythmdatabase.api.DefaultRhythmDatabase;
+import org.jjazz.rhythmdatabase.api.DefaultRhythmDatabaseImpl;
 import org.jjazz.rhythmdatabase.api.RhythmDatabase;
 import org.jjazz.rhythmdatabase.api.UnavailableRhythmException;
+import org.jjazz.rhythmdatabase.spi.SharedRdbInstanceProvider;
+import org.jjazz.rhythmparametersimpl.api.RP_SYS_Fill;
+import org.jjazz.rhythmparametersimpl.api.RP_SYS_Variation;
 import org.jjazz.song.api.Song;
 import org.jjazz.song.api.SongCreationException;
-import org.jjazz.song.api.SongFactory;
-import org.jjazz.songcontext.api.SongContext;
+import org.jjazz.song.spi.SongContextFactory;
+import org.jjazz.song.spi.SongFactory;
 import org.jjazz.songstructure.api.SongStructure;
 import org.jjazz.testplayerservice.spi.TestPlayer;
 import org.jjazz.utilities.api.Utilities;
 import org.openide.util.Exceptions;
+import org.openide.util.NbPreferences;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * This demonstrates how to use some of the main features of the JJazzLab toolkit.
@@ -62,6 +65,7 @@ public class ToolkitDemoApp
     {
         // Set string format for all Loggers
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s %3$s  %5$s %n");
+        Locale.setDefault(Locale.ENGLISH);
     }
     private static final Logger LOGGER = Logger.getLogger(ToolkitDemoApp.class.getSimpleName());
 
@@ -120,10 +124,14 @@ public class ToolkitDemoApp
 
         // =============================================================================================
         LOGGER.info("-------------------------------------------------------");
-        LOGGER.log(Level.INFO, "Populating the RhythmDatabase...");
-        DefaultRhythmDatabase rdb = (DefaultRhythmDatabase) RhythmDatabase.getDefault();
-        // This will poll all the RhythmProvider instances available in the global lookup 
-        rdb.addRhythmsFromRhythmProviders(false, false, false);
+        LOGGER.log(Level.INFO, "Setting up the RhythmDatabase...");
+        // See DemoRdbInstanceProviderImpl implementation below
+        var rdbProvider = SharedRdbInstanceProvider.getDefault();
+        if (rdbProvider == null)
+        {
+            exitWithError("ERROR: Missing SharedRdbInstanceProvider instance");
+        }
+        RhythmDatabase rdb = rdbProvider.get();
 
 
         // =============================================================================================
@@ -136,7 +144,7 @@ public class ToolkitDemoApp
             LOGGER.log(Level.INFO, "Loading song file {0}...", PATH_TO_SNG_FILE);
             try
             {
-                song = Song.loadFromFile(new File(PATH_TO_SNG_FILE));
+                song = SongFactory.getDefault().loadFromFile(new File(PATH_TO_SNG_FILE));
                 chordLeadsheet = song.getChordLeadSheet();
                 songStructure = song.getSongStructure();
             } catch (SongCreationException ex)
@@ -149,7 +157,7 @@ public class ToolkitDemoApp
             LOGGER.info("-------------------------------------------------------");
             LOGGER.info("Creating a new song...");
             // 12 bars with just an initial "A" Section in 4/4 and its corresponding SongPart using the default 4/4 rhythm
-            song = SongFactory.getInstance().createEmptySong("Simple blues in F", 12, "A", TimeSignature.FOUR_FOUR, null);
+            song = SongFactory.getDefault().createEmptySong("Simple blues in F", 12, "A", TimeSignature.FOUR_FOUR, null);
             chordLeadsheet = song.getChordLeadSheet();
             songStructure = song.getSongStructure();
             CLI_Factory clif = CLI_Factory.getDefault();        // ChordLeadSheetItem factory
@@ -174,16 +182,10 @@ public class ToolkitDemoApp
             try
             {
                 rhythm = rdb.getRhythmInstance("Cool8Beat.S737.sst-ID");    // throws UnavailableRhythmException
-                var newSpt0 = spt0.getCopy(rhythm, spt0.getStartBarIndex(), spt0.getNbBars(), spt0.getParentSection());   
-                songStructure.replaceSongParts(List.of(spt0), List.of(newSpt0));    // throws UnsupportedEditException
-                spt0 = newSpt0;
-            } catch (UnavailableRhythmException ex)
+                songStructure.setSongPartsRhythm(List.of(spt0), rhythm, null);
+            } catch (UnavailableRhythmException | UnsupportedEditException ex)
             {
-                LOGGER.warning(ex.getMessage());
-            } catch (UnsupportedEditException ex)
-            {
-                // Should never happen
-                Exceptions.printStackTrace(ex);
+                LOGGER.severe(ex.getMessage());
             }
 
             // Set Fill parameter to "always" (if default rhythm supports it)
@@ -192,7 +194,7 @@ public class ToolkitDemoApp
             {
                 songStructure.setRhythmParameterValue(spt0, rpFill, RP_SYS_Fill.VALUE_ALWAYS);
             }
-            
+
 
             // Or simpler, use the TextReader song importer:
 //            TextReader tr = new TextReader(
@@ -245,7 +247,7 @@ public class ToolkitDemoApp
         try
         {
             midiMix = MidiMixManager.getDefault().createMix(song); // throws MidiUnavailableException
-        } catch (MidiUnavailableException ex)
+        } catch (UnsupportedEditException ex)
         {
             exitWithError(ex);
         }
@@ -259,7 +261,7 @@ public class ToolkitDemoApp
         // Send all Midi messages to configure the connected synth (for each used channel select patch and set volume/pan/chorus/reverb settings)
         midiMix.sendAllMidiMixMessages();
         midiMix.sendAllMidiVolumeMessages();
-        LOGGER.log(Level.INFO, midiMix.toDumpString());
+        LOGGER.log(Level.INFO, midiMix.toDebugString());
 
 
         // =============================================================================================
@@ -269,7 +271,8 @@ public class ToolkitDemoApp
         {
             song.setTempo(120);
             var mc = MusicController.getInstance();
-            var session = StaticSongSession.getSession(new SongContext(song, midiMix), PlaybackSession.Context.SONG);
+            var songContext = SongContextFactory.getDefault().of(song, midiMix);
+            var session = StaticSongSession.getSession(songContext, PlaybackSession.Context.SONG);
             mc.setPlaybackSession(session, false);             // throws MusicGenerationException
             mc.play(0);     // throws MusicGenerationException            
         } catch (MusicGenerationException ex)
@@ -334,6 +337,12 @@ public class ToolkitDemoApp
     }
 
 
+    private static void exitWithError(String s)
+    {
+        LOGGER.severe(s);
+        System.exit(1);
+    }
+
     private static void exitWithError(Exception ex)
     {
         Exceptions.printStackTrace(ex);
@@ -380,5 +389,65 @@ public class ToolkitDemoApp
         return synth;
     }
 
+
+    /**
+     * A SharedRdbInstanceProvider implementation.
+     * <p>
+     * Relies on DefaultRhythmDatabaseImpl.
+     */
+    @ServiceProvider(service = SharedRdbInstanceProvider.class)
+    static public class DemoRdbInstanceProviderImpl implements SharedRdbInstanceProvider
+    {
+
+        private DefaultRhythmDatabaseImpl rdb = null;
+        private static final Logger LOGGER = Logger.getLogger(DemoRdbInstanceProviderImpl.class.getSimpleName());
+
+        public DemoRdbInstanceProviderImpl()
+        {
+            LOGGER.info("DemoRdbInstanceProviderImpl registered");
+        }
+
+        @Override
+        public Future<?> initialize()
+        {
+            LOGGER.info("initialize() --");
+            rdb = new DefaultRhythmDatabaseImpl(NbPreferences.forModule(getClass()));
+            rdb.addRhythmsFromRhythmProviders(false, false, false);
+            System.out.println(rdb.toStatsString());
+            System.out.println("DemoRdbInstanceProviderImpl.initialize() Default 4/4 rhythm=" + rdb.getDefaultRhythm(TimeSignature.FOUR_FOUR));
+            System.out.println("DemoRdbInstanceProviderImpl.initialize() Default 3/4 rhythm=" + rdb.getDefaultRhythm(TimeSignature.THREE_FOUR));
+            assert !rdb.getRhythms().isEmpty();
+            return null;
+        }
+
+        @Override
+        public boolean isInitialized()
+        {
+            return rdb != null;
+        }
+
+        @Override
+        public RhythmDatabase get()
+        {
+            if (!isInitialized())
+            {
+                initialize();
+            }
+            return rdb;
+        }
+
+        @Override
+        public void markForStartupRefresh(boolean b)
+        {
+            throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        }
+
+        @Override
+        public boolean isMarkedForStartupRefresh()
+        {
+            throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        }
+
+    }
 
 }
